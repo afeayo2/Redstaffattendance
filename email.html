@@ -1,0 +1,35 @@
+  html: `<!DOCTYPE html>
+                <html>
+<head>
+    <style>
+        .container {
+            max-width: 500px;
+            padding: 20px;
+            text-align: center;
+            background: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+            margin: 30px auto;
+        }
+        .logo {
+            max-width: 120px;
+            margin-bottom: 20px;
+        }
+        .otp {~
+            font-size: 24px;
+            font-weight: bold;
+            color: #007bff;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body style="background-color: #f4f4f4; margin: 0; padding: 0;">
+    <div class="container">
+        <img class="logo" src="https://res.cloudinary.com/judeeseka/image/upload/v1745013462/logo_gf6rtj.png" alt="EasyServe Logo" />
+        <p style="font-size: 20px; font-weight: bold; color: #333;">Your OTP Code</p>
+        <p style="font-size: 16px; color: #555;">Use the code below to verify your account. It expires in 10 minutes.</p>
+        <p class="otp">${otp}</p>
+        <p style="font-size: 14px; color: #888;">If you didn’t request this, ignore this email.</p>
+    </div>
+</body>
+</html>

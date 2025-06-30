@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Staff Attendance Dashboard</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      background: linear-gradient(to right, #e60012, #f7f7f7);
+      min-height: 100vh;
+    }
+    .card {
+      border-radius: 15px;
+    }
+    .navbar {
+      background-color: #e60012;
+    }
+    .navbar-brand {
+      color: white;
+      font-weight: bold;
+    }
+    .navbar-brand:hover {
+      color: #f0f0f0;
+    }
+    .btn-danger {
+      background-color: #e60012;
+      border: none;
+    }
+    .btn-danger:hover {
+      background-color: #b3000f;
+    }
+  </style>
+</head>
+<body>
+
+<nav class="navbar px-3">
+  <a class="navbar-brand" href="#">Attendance System</a>
+  <span class="navbar-text text-white">
+    Welcome, <span id="staffName">Staff</span>
+  </span>
+</nav>
+
+<div class="container py-5">
+  <div class="row g-4">
+
+    <div class="col-md-4">
+      <div class="card p-3 shadow">
+        <h5>Check-In</h5>
+        <button class="btn btn-danger" onclick="checkIn()">Mark Check-In</button>
+      </div>
+    </div>
+
+    <div class="col-md-4">
+      <div class="card p-3 shadow">
+        <h5>Check-Out</h5>
+        <button class="btn btn-danger" onclick="checkOut()">Mark Check-Out</button>
+      </div>
+    </div>
+
+    <div class="col-md-4">
+      <div class="card p-3 shadow">
+        <h5>Summary</h5>
+        <div id="summary">
+          <p>Week: <span id="weekCount">0</span></p>
+          <p>Month: <span id="monthCount">0</span></p>
+          <p>Year: <span id="yearCount">0</span></p>
+        </div>
+        <button class="btn btn-secondary" onclick="loadSummary()">Refresh Summary</button>
+      </div>
+    </div>
+
+    <div class="col-12">
+      <div class="card p-3 shadow">
+        <h5>Attendance History</h5>
+        <ul class="list-group" id="history"></ul>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const token = localStorage.getItem('token');
+const staffName = localStorage.getItem('staffName');
+document.getElementById('staffName').innerText = staffName || 'Staff';
+
+const headers = {
+  'Content-Type': 'application/json',
+  'Authorization': 'Bearer ' + token
+};
+
+function checkIn() {
+  if (!navigator.geolocation) {
+    alert('❌ Your browser does not support Geolocation.');
+    return;
+  }
+
+  navigator.geolocation.getCurrentPosition(
+    async (position) => {
+      const { latitude, longitude } = position.coords;
+      const res = await fetch('https://nbc-boa-attendance-system.onrender.com/api/attendance/check-in', {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({ latitude, longitude })
+      });
+      const data = await res.json();
+      alert(data.message);
+      loadHistory();
+      loadSummary();
+    },
+    (error) => {
+      console.error(error);
+      if (error.code === 1) {
+        alert('❌ Location access denied. Please enable location to check in.');
+      } else if (error.code === 2) {
+        alert('❌ Location unavailable. Check your GPS.');
+      } else if (error.code === 3) {
+        alert('❌ Location request timed out. Try again.');
+      } else {
+        alert('❌ Unable to access location.');
+      }
+    }
+  );
+}
+
+function checkOut() {
+  fetch('https://nbc-boa-attendance-system.onrender.com/api/attendance/check-out', {
+    method: 'POST',
+    headers
+  })
+    .then(res => res.json())
+    .then(data => {
+      alert(data.message);
+      loadHistory();
+    });
+}
+
+function loadSummary() {
+  fetch('https://nbc-boa-attendance-system.onrender.com/api/attendance/summary', { headers })
+    .then(res => res.json())
+    .then(data => {
+      document.getElementById('weekCount').innerText = data.weekAttendance;
+      document.getElementById('monthCount').innerText = data.monthAttendance;
+      document.getElementById('yearCount').innerText = data.yearAttendance;
+    });
+}
+
+function loadHistory() {
+  fetch('https://nbc-boa-attendance-system.onrender.com/api/attendance/history', { headers })
+    .then(res => res.json())
+    .then(records => {
+      const history = document.getElementById('history');
+      history.innerHTML = '';
+      records.forEach(rec => {
+        const li = document.createElement('li');
+        li.className = 'list-group-item';
+        li.innerText = `${new Date(rec.checkIn).toLocaleString()} - ${rec.officeName || 'Unknown Office'} ${rec.checkOut ? '✅ Checked out' : '❌ Not checked out'}`;
+        history.appendChild(li);
+      });
+    });
+}
+
+window.onload = () => {
+  loadSummary();
+  loadHistory();
+};
+</script>
+
+</body>
+</html>
