@@ -1,171 +1,289 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Staff Attendance Dashboard</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet" />
+
   <style>
+    /* Body & Background */
     body {
-      background: linear-gradient(to right, #e60012, #f7f7f7);
+      background: linear-gradient(135deg, #e60012 0%, #f7f7f7 100%);
       min-height: 100vh;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      color: #333;
+      margin: 0;
+      padding-bottom: 40px;
     }
-    .card {
-      border-radius: 15px;
-    }
+
+    /* Navbar */
     .navbar {
       background-color: #e60012;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.15);
+      padding: 1rem 2rem;
+      font-weight: 600;
+      font-size: 1.25rem;
     }
     .navbar-brand {
-      color: white;
-      font-weight: bold;
+      color: #fff;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      user-select: none;
     }
-    .navbar-brand:hover {
+    .navbar-text {
       color: #f0f0f0;
+      font-weight: 500;
     }
+
+    /* Container */
+    .container {
+      max-width: 1140px;
+    }
+
+    /* Cards */
+    .card {
+      border-radius: 20px;
+      box-shadow: 0 12px 24px rgba(0,0,0,0.12);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 18px 36px rgba(0,0,0,0.16);
+    }
+
+    /* Section titles */
+    h5 {
+      font-weight: 700;
+      color: #b3000f;
+      margin-bottom: 1rem;
+      user-select: none;
+    }
+
+    /* Buttons */
     .btn-danger {
       background-color: #e60012;
       border: none;
+      font-weight: 600;
+      font-size: 1rem;
+      padding: 10px 18px;
+      border-radius: 8px;
+      transition: background-color 0.3s ease;
+      box-shadow: 0 4px 10px rgba(230,0,18,0.4);
     }
     .btn-danger:hover {
       background-color: #b3000f;
+      box-shadow: 0 6px 14px rgba(179,0,15,0.7);
+    }
+    .btn-secondary {
+      background-color: #6c757d;
+      border: none;
+      font-weight: 600;
+      padding: 10px 18px;
+      border-radius: 8px;
+      transition: background-color 0.3s ease;
+    }
+    .btn-secondary:hover {
+      background-color: #565e64;
+    }
+
+    /* Summary cards */
+    #summary p {
+      font-weight: 600;
+      font-size: 1.1rem;
+      margin-bottom: 0.5rem;
+      color: #444;
+    }
+
+    /* Attendance History */
+    #history {
+      max-height: 320px;
+      overflow-y: auto;
+      border-radius: 0 0 20px 20px;
+    }
+    #history li {
+      font-size: 0.95rem;
+      color: #555;
+      transition: background-color 0.2s ease;
+      cursor: default;
+    }
+    #history li:hover {
+      background-color: #f9e6e6;
+    }
+
+    /* Responsive tweaks */
+    @media (max-width: 767px) {
+      .container {
+        padding: 0 1rem;
+      }
+      .navbar {
+        font-size: 1rem;
+        padding: 0.75rem 1rem;
+      }
+      h5 {
+        font-size: 1.15rem;
+      }
     }
   </style>
 </head>
 <body>
 
-<nav class="navbar px-3">
-  <a class="navbar-brand" href="#">Attendance System</a>
-  <span class="navbar-text text-white">
-    Welcome, <span id="staffName">Staff</span>
-  </span>
-</nav>
+  <nav class="navbar d-flex justify-content-between">
+    <a class="navbar-brand" href="#">Attendance System</a>
+    <span class="navbar-text">Welcome, <span id="staffName">Staff</span></span>
+  </nav>
 
-<div class="container py-5">
-  <div class="row g-4">
+  <div class="container py-5">
+    <div class="row g-4">
 
-    <div class="col-md-4">
-      <div class="card p-3 shadow">
-        <h5>Check-In</h5>
-        <button class="btn btn-danger" onclick="checkIn()">Mark Check-In</button>
-      </div>
-    </div>
-
-    <div class="col-md-4">
-      <div class="card p-3 shadow">
-        <h5>Check-Out</h5>
-        <button class="btn btn-danger" onclick="checkOut()">Mark Check-Out</button>
-      </div>
-    </div>
-
-    <div class="col-md-4">
-      <div class="card p-3 shadow">
-        <h5>Summary</h5>
-        <div id="summary">
-          <p>Week: <span id="weekCount">0</span></p>
-          <p>Month: <span id="monthCount">0</span></p>
-          <p>Year: <span id="yearCount">0</span></p>
+      <div class="col-md-4">
+        <div class="card p-4 text-center">
+          <h5><i class="bi bi-box-arrow-in-right me-2"></i>Check-In</h5>
+          <button class="btn btn-danger w-100" onclick="checkIn()">
+            <i class="bi bi-check-circle-fill me-2"></i>Mark Check-In
+          </button>
         </div>
-        <button class="btn btn-secondary" onclick="loadSummary()">Refresh Summary</button>
       </div>
-    </div>
 
-    <div class="col-12">
-      <div class="card p-3 shadow">
-        <h5>Attendance History</h5>
-        <ul class="list-group" id="history"></ul>
+      <div class="col-md-4">
+        <div class="card p-4 text-center">
+          <h5><i class="bi bi-box-arrow-right me-2"></i>Check-Out</h5>
+          <button class="btn btn-danger w-100" onclick="checkOut()">
+            <i class="bi bi-x-circle-fill me-2"></i>Mark Check-Out
+          </button>
+        </div>
       </div>
-    </div>
 
+      <div class="col-md-4">
+        <div class="card p-4 text-center">
+          <h5><i class="bi bi-bar-chart-line-fill me-2"></i>Summary</h5>
+          <div id="summary" class="mb-3">
+            <p>Week: <strong id="weekCount">0</strong></p>
+            <p>Month: <strong id="monthCount">0</strong></p>
+            <p>Year: <strong id="yearCount">0</strong></p>
+          </div>
+          <button class="btn btn-secondary w-100" onclick="loadSummary()">
+            <i class="bi bi-arrow-clockwise me-2"></i>Refresh Summary
+          </button>
+        </div>
+      </div>
+
+      <div class="col-12">
+        <div class="card p-4">
+          <h5><i class="bi bi-clock-history me-2"></i>Attendance History</h5>
+          <ul class="list-group" id="history"></ul>
+        </div>
+      </div>
+
+    </div>
   </div>
-</div>
 
-<script>
-const token = localStorage.getItem('token');
-const staffName = localStorage.getItem('staffName');
-document.getElementById('staffName').innerText = staffName || 'Staff';
+  <script>
+    // Load staff info from localStorage
+    const staffInfo = JSON.parse(localStorage.getItem('staff'));
+    const token = localStorage.getItem('token');
 
-const headers = {
-  'Content-Type': 'application/json',
-  'Authorization': 'Bearer ' + token
-};
+    if (staffInfo && staffInfo.name) {
+      document.getElementById('staffName').innerText = staffInfo.name;
+    } else {
+      document.getElementById('staffName').innerText = 'Staff';
+    }
 
-function checkIn() {
-  if (!navigator.geolocation) {
-    alert('❌ Your browser does not support Geolocation.');
-    return;
-  }
+    const headers = {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ' + token
+    };
 
-  navigator.geolocation.getCurrentPosition(
-    async (position) => {
-      const { latitude, longitude } = position.coords;
-      const res = await fetch('https://nbc-boa-attendance-system.onrender.com/api/attendance/check-in', {
-        method: 'POST',
-        headers,
-        body: JSON.stringify({ latitude, longitude })
-      });
-      const data = await res.json();
-      alert(data.message);
-      loadHistory();
-      loadSummary();
-    },
-    (error) => {
-      console.error(error);
-      if (error.code === 1) {
-        alert('❌ Location access denied. Please enable location to check in.');
-      } else if (error.code === 2) {
-        alert('❌ Location unavailable. Check your GPS.');
-      } else if (error.code === 3) {
-        alert('❌ Location request timed out. Try again.');
-      } else {
-        alert('❌ Unable to access location.');
+    function checkIn() {
+      if (!navigator.geolocation) {
+        alert('❌ Your browser does not support Geolocation.');
+        return;
+      }
+
+      navigator.geolocation.getCurrentPosition(
+        async (position) => {
+          const { latitude, longitude } = position.coords;
+          try {
+            const res = await fetch('https://nbc-boa-attendance-system.onrender.com/api/attendance/check-in', {
+              method: 'POST',
+              headers,
+              body: JSON.stringify({ latitude, longitude })
+            });
+            const data = await res.json();
+            alert(data.message);
+            loadHistory();
+            loadSummary();
+          } catch (err) {
+            alert('❌ Failed to check in. Please try again.');
+          }
+        },
+        (error) => {
+          if (error.code === 1) {
+            alert('❌ Location access denied. Please enable location to check in.');
+          } else if (error.code === 2) {
+            alert('❌ Location unavailable. Check your GPS.');
+          } else if (error.code === 3) {
+            alert('❌ Location request timed out. Try again.');
+          } else {
+            alert('❌ Unable to access location.');
+          }
+        }
+      );
+    }
+
+    async function checkOut() {
+      try {
+        const res = await fetch('https://nbc-boa-attendance-system.onrender.com/api/attendance/check-out', {
+          method: 'POST',
+          headers
+        });
+        const data = await res.json();
+        alert(data.message);
+        loadHistory();
+      } catch {
+        alert('❌ Failed to check out. Please try again.');
       }
     }
-  );
-}
 
-function checkOut() {
-  fetch('https://nbc-boa-attendance-system.onrender.com/api/attendance/check-out', {
-    method: 'POST',
-    headers
-  })
-    .then(res => res.json())
-    .then(data => {
-      alert(data.message);
+    async function loadSummary() {
+      try {
+        const res = await fetch('https://nbc-boa-attendance-system.onrender.com/api/attendance/summary', { headers });
+        const data = await res.json();
+        document.getElementById('weekCount').innerText = data.weekAttendance ?? 0;
+        document.getElementById('monthCount').innerText = data.monthAttendance ?? 0;
+        document.getElementById('yearCount').innerText = data.yearAttendance ?? 0;
+      } catch {
+        // handle error silently or show a message
+      }
+    }
+
+    async function loadHistory() {
+      try {
+        const res = await fetch('https://nbc-boa-attendance-system.onrender.com/api/attendance/history', { headers });
+        const records = await res.json();
+        const history = document.getElementById('history');
+        history.innerHTML = '';
+        records.forEach(rec => {
+          const li = document.createElement('li');
+          li.className = 'list-group-item';
+          const checkInDate = new Date(rec.checkIn).toLocaleString();
+          const officeName = rec.officeName || 'Unknown Office';
+          const checkOutStatus = rec.checkOut ? '<span class="text-success">✅ Checked out</span>' : '<span class="text-danger">❌ Not checked out</span>';
+          li.innerHTML = `${checkInDate} - <strong>${officeName}</strong> ${checkOutStatus}`;
+          history.appendChild(li);
+        });
+      } catch {
+        // optionally show a message in history area
+      }
+    }
+
+    window.onload = () => {
+      loadSummary();
       loadHistory();
-    });
-}
+    };
+  </script>
 
-function loadSummary() {
-  fetch('https://nbc-boa-attendance-system.onrender.com/api/attendance/summary', { headers })
-    .then(res => res.json())
-    .then(data => {
-      document.getElementById('weekCount').innerText = data.weekAttendance;
-      document.getElementById('monthCount').innerText = data.monthAttendance;
-      document.getElementById('yearCount').innerText = data.yearAttendance;
-    });
-}
-
-function loadHistory() {
-  fetch('https://nbc-boa-attendance-system.onrender.com/api/attendance/history', { headers })
-    .then(res => res.json())
-    .then(records => {
-      const history = document.getElementById('history');
-      history.innerHTML = '';
-      records.forEach(rec => {
-        const li = document.createElement('li');
-        li.className = 'list-group-item';
-        li.innerText = `${new Date(rec.checkIn).toLocaleString()} - ${rec.officeName || 'Unknown Office'} ${rec.checkOut ? '✅ Checked out' : '❌ Not checked out'}`;
-        history.appendChild(li);
-      });
-    });
-}
-
-window.onload = () => {
-  loadSummary();
-  loadHistory();
-};
-</script>
-
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

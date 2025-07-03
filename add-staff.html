@@ -57,7 +57,7 @@
 
       <div id="message" class="text-center mb-3"></div>
 
-      <button type="submit" class="btn btn-danger w-100">
+      <button type="submit" class="btn btn-danger w-100" id="submitBtn">
         <i class="bi bi-plus-circle"></i> Add Staff
       </button>
     </form>
@@ -68,6 +68,7 @@
 <script>
   const form = document.getElementById('addStaffForm');
   const message = document.getElementById('message');
+  const submitBtn = document.getElementById('submitBtn');
 
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -76,6 +77,10 @@
     const email = document.getElementById('email').value.trim();
 
     const token = localStorage.getItem('token'); // Use your saved token here
+
+    // Disable button and show spinner
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Adding...`;
 
     try {
       const res = await fetch('https://nbc-boa-attendance-system.onrender.com/api/admin/add-staff', {
@@ -97,6 +102,10 @@
       }
     } catch (err) {
       message.innerHTML = `<div class="alert alert-danger">Error occurred. Try again.</div>`;
+    } finally {
+      // Re-enable button and restore original text
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = `<i class="bi bi-plus-circle"></i> Add Staff`;
     }
   });
 </script>

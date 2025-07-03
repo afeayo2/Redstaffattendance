@@ -62,7 +62,7 @@
   const token = localStorage.getItem('token');
 
   // Simulate staff ID from URL or selection
-  const staffId = "PUT_STAFF_ID_HERE";
+  const staffId = "https://nbc-boa-attendance-system.onrender.com/api/admin/staff-schedule-days/${staffId}";
 
   async function fetchScheduleDays() {
     const res = await fetch(`https://nbc-boa-attendance-system.onrender.com/api/admin/staff-schedule-days/${staffId}`, {
