@@ -83,7 +83,7 @@
     submitBtn.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Adding...`;
 
     try {
-      const res = await fetch('http://localhost:3000/api/admin/add-admin', {
+      const res = await fetch('https://nbc-boa-attendance-system.onrender.com/api/admin/add-admin', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

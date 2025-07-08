@@ -17,7 +17,7 @@
   const token = localStorage.getItem('token');
 
   async function loadGroupedSchedules() {
-    const res = await fetch('http://localhost:3000/api/admin/grouped-schedules-by-date', {
+    const res = await fetch('https://nbc-boa-attendance-system.onrender.com/api/admin/grouped-schedules-by-date', {
       headers: { 'Authorization': 'Bearer ' + token }
     });
 
