@@ -21,7 +21,7 @@
             rgba(0, 0, 0, 0.6),
             rgba(0, 0, 0, 0.6)
           ),
-          url("https://i.postimg.cc/yNPX8DyP/coca-cola-background.jpg");
+          url("/coca-cola-background.jpg");
         background-size: cover;
         background-position: center;
         background-repeat: no-repeat;
@@ -87,7 +87,7 @@
       <div class="card">
         <div class="text-center">
           <img
-            src="https://i.postimg.cc/HsZ59Dx0/image.png"
+            src="/image.png"
             class="logo mb-3"
             alt="Coca-Cola Logo"
           />
@@ -120,6 +120,7 @@
             Login
           </button>
         </form>
+         <a href="admin-forgot-password.html" class="forgot-password">Forgot Password</a>
       </div>
     </div>
 
@@ -148,7 +149,7 @@
           const data = await res.json();
 
           if (!res.ok) {
-            message.classList.remove("text-success");
+            message.classList.remove("text-success");~
             message.classList.add("text-danger");
             message.innerText = data.message || "Login failed";
 
