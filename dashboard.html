@@ -10,102 +10,25 @@
     body {
       background: linear-gradient(135deg, #e60012 0%, #fff 100%);
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      margin: 0;
-      padding: 0;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
+      margin: 0; padding: 0; min-height: 100vh; display: flex; flex-direction: column;
     }
-
-    .navbar {
-      background-color: #e60012;
-      padding: 1rem 2rem;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-    }
-
-    .navbar-brand {
-      color: #fff;
-      font-weight: 700;
-      font-size: 1.5rem;
-      letter-spacing: 1px;
-    }
-
-    .navbar-text {
-      color: #f8f9fa;
-      font-weight: 500;
-    }
-
-    .btn-logout {
-      background-color: #fff;
-      color: #e60012;
-      border: none;
-      padding: 8px 16px;
-      border-radius: 8px;
-      font-weight: 600;
-      transition: background-color 0.3s;
-    }
-
-    .btn-logout:hover {
-      background-color: #f5f5f5;
-    }
-
-    .container {
-      flex: 1;
-      padding-top: 50px;
-      padding-bottom: 50px;
-    }
-
-    .card {
-      border-radius: 16px;
-      box-shadow: 0 6px 16px rgba(0,0,0,0.1);
-      transition: transform 0.2s ease;
-    }
-
-    .card:hover {
-      transform: translateY(-4px);
-    }
-
-    h5 {
-      color: #e60012;
-      font-weight: 700;
-      margin-bottom: 1rem;
-    }
-
-    .btn {
-      border-radius: 8px;
-      font-weight: 600;
-    }
-
-    .btn-danger {
-      background-color: #e60012;
-      border: none;
-    }
-
-    .btn-secondary {
-      border: none;
-      background-color: #6c757d;
-    }
-
-    .list-group-item {
-      font-size: 0.95rem;
-      border: none;
-      border-bottom: 1px solid #eee;
-      padding: 10px 15px;
-    }
-
-    .list-group-item:last-child {
-      border-bottom: none;
-    }
-
-    @media (max-width: 767px) {
-      .navbar-brand { font-size: 1.2rem; }
-      h5 { font-size: 1rem; }
-    }
+    .navbar { background-color: #e60012; padding: 1rem 2rem; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+    .navbar-brand { color: #fff; font-weight: 700; font-size: 1.5rem; }
+    .navbar-text { color: #f8f9fa; font-weight: 500; }
+    .btn-logout { background-color: #fff; color: #e60012; border: none; padding: 8px 16px; border-radius: 8px; font-weight: 600; }
+    .container { flex: 1; padding: 50px 15px; }
+    .card { border-radius: 16px; box-shadow: 0 6px 16px rgba(0,0,0,0.1); transition: transform 0.2s ease; }
+    .card:hover { transform: translateY(-4px); }
+    h5 { color: #e60012; font-weight: 700; margin-bottom: 1rem; }
+    .btn { border-radius: 8px; font-weight: 600; }
+    .btn-danger { background-color: #e60012; border: none; }
+    .btn-secondary { background-color: #6c757d; border: none; }
+    .list-group-item { border: none; border-bottom: 1px solid #eee; padding: 10px 15px; }
+    @media (max-width: 767px) { .navbar-brand { font-size: 1.2rem; } h5 { font-size: 1rem; } }
   </style>
 </head>
 
 <body>
-
   <nav class="navbar d-flex justify-content-between align-items-center">
     <div class="navbar-brand">NBC Red Auditors Attendance</div>
     <div>
@@ -119,6 +42,7 @@
   <div class="container">
     <div class="row g-4">
 
+      <!-- Check-In -->
       <div class="col-md-4">
         <div class="card p-4 text-center">
           <h5><i class="bi bi-check2-circle me-2"></i>Check-In</h5>
@@ -128,6 +52,7 @@
         </div>
       </div>
 
+      <!-- Check-Out -->
       <div class="col-md-4">
         <div class="card p-4 text-center">
           <h5><i class="bi bi-door-closed-fill me-2"></i>Check-Out</h5>
@@ -137,10 +62,11 @@
         </div>
       </div>
 
+      <!-- Summary -->
       <div class="col-md-4">
         <div class="card p-4 text-center">
           <h5><i class="bi bi-bar-chart-line-fill me-2"></i>Summary</h5>
-          <div id="summary">
+          <div id="summary" class="text-start">
             <p>Week: <strong id="weekCount">0</strong></p>
             <p>Month: <strong id="monthCount">0</strong></p>
             <p>Year: <strong id="yearCount">0</strong></p>
@@ -153,6 +79,7 @@
         </div>
       </div>
 
+      <!-- History -->
       <div class="col-12">
         <div class="card p-4">
           <h5><i class="bi bi-clock-history me-2"></i>Attendance History</h5>
@@ -160,6 +87,7 @@
         </div>
       </div>
 
+      <!-- Schedule -->
       <div class="col-12">
         <div class="card p-4">
           <h5><i class="bi bi-calendar3 me-2"></i>My Office Schedule</h5>
@@ -171,10 +99,20 @@
   </div>
 
   <script>
+    // 1) Generate or retrieve a persistent deviceId
+    let deviceId = localStorage.getItem('deviceId');
+    if (!deviceId) {
+      deviceId = crypto.randomUUID();
+      localStorage.setItem('deviceId', deviceId);
+    }
+
+    // 2) Load staff info & token
     const staffInfo = JSON.parse(localStorage.getItem('staff'));
     const token = localStorage.getItem('token');
-    const headers = { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token };
-
+    const headers = {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ' + token
+    };
     if (staffInfo && staffInfo.name) {
       document.getElementById('staffName').innerText = staffInfo.name;
     }
@@ -186,18 +124,17 @@
 
     function checkIn() {
       if (!navigator.geolocation) return alert('❌ Geolocation not supported.');
-      navigator.geolocation.getCurrentPosition(async (position) => {
-        const { latitude, longitude } = position.coords;
+      navigator.geolocation.getCurrentPosition(async pos => {
+        const { latitude, longitude } = pos.coords;
         try {
           const res = await fetch('https://nbc-boa-attendance-system.onrender.com/api/attendance/check-in', {
             method: 'POST',
             headers,
-            body: JSON.stringify({ latitude, longitude })
+            body: JSON.stringify({ latitude, longitude, deviceId })
           });
           const data = await res.json();
           alert(data.message);
-          loadHistory();
-          loadSummary();
+          loadHistory(); loadSummary();
         } catch {
           alert('❌ Check-In failed.');
         }
@@ -206,7 +143,9 @@
 
     async function checkOut() {
       try {
-        const res = await fetch('https://nbc-boa-attendance-system.onrender.com/api/attendance/check-out', { method: 'POST', headers });
+        const res = await fetch('https://nbc-boa-attendance-system.onrender.com/api/attendance/check-out', {
+          method: 'POST', headers
+        });
         const data = await res.json();
         alert(data.message);
         loadHistory();
@@ -218,29 +157,31 @@
     async function loadSummary() {
       try {
         const res = await fetch('https://nbc-boa-attendance-system.onrender.com/api/attendance/summary', { headers });
-        const data = await res.json();
-        document.getElementById('weekCount').innerText = data.weekAttendance ?? 0;
-        document.getElementById('monthCount').innerText = data.monthAttendance ?? 0;
-        document.getElementById('yearCount').innerText = data.yearAttendance ?? 0;
-        document.getElementById('presentCount').innerText = data.totalPresent ?? 0;
-        document.getElementById('absentCount').innerText = data.totalAbsent ?? 0;
+        const d = await res.json();
+        document.getElementById('weekCount').innerText    = d.weekAttendance    ?? 0;
+        document.getElementById('monthCount').innerText   = d.monthAttendance   ?? 0;
+        document.getElementById('yearCount').innerText    = d.yearAttendance    ?? 0;
+        document.getElementById('presentCount').innerText = d.timesPresent      ?? 0;
+        document.getElementById('absentCount').innerText  = d.timesAbsent       ?? 0;
       } catch {}
     }
 
     async function loadHistory() {
       try {
         const res = await fetch('https://nbc-boa-attendance-system.onrender.com/api/attendance/history', { headers });
-        const records = await res.json();
-        const history = document.getElementById('history');
-        history.innerHTML = '';
-        records.forEach(rec => {
+        const recs = await res.json();
+        const list = document.getElementById('history');
+        list.innerHTML = '';
+        recs.forEach(r => {
           const li = document.createElement('li');
           li.className = 'list-group-item';
-          const checkInDate = new Date(rec.checkIn).toLocaleString();
-          const officeName = rec.officeName || 'Unknown Office';
-          const checkOutStatus = rec.checkOut ? '<span class="text-success">✅ Checked out</span>' : '<span class="text-danger">❌ Not checked out</span>';
-          li.innerHTML = `${checkInDate} - <strong>${officeName}</strong> ${checkOutStatus}`;
-          history.appendChild(li);
+          const inTime  = new Date(r.checkIn ).toLocaleString();
+          const office  = r.officeName || 'Unknown Office';
+          const status  = r.status==='Absent'
+                           ? '<span class="text-danger">❌ Absent</span>'
+                           : (r.checkOut ? '<span class="text-success">✅ Checked out</span>' : '');
+          li.innerHTML = `${inTime} - ${office} ${status}`;
+          list.appendChild(li);
         });
       } catch {}
     }
@@ -249,20 +190,19 @@
       try {
         const res = await fetch('https://nbc-boa-attendance-system.onrender.com/api/attendance/my-schedule', { headers });
         const data = await res.json();
-        const scheduleList = document.getElementById('scheduleList');
-        scheduleList.innerHTML = '';
-
+        const list = document.getElementById('scheduleList');
+        list.innerHTML = '';
         if (!data.assignedDates?.length) {
-          scheduleList.innerHTML = '<li class="list-group-item text-muted">No office dates assigned.</li>';
+          list.innerHTML = '<li class="list-group-item text-muted">No dates assigned.</li>';
           return;
         }
-
-        data.assignedDates.forEach(date => {
+        data.assignedDates.forEach(d => {
           const li = document.createElement('li');
           li.className = 'list-group-item';
-          const formatted = new Date(date).toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'short', day: 'numeric' });
-          li.innerHTML = `<i class="bi bi-calendar-event me-2 text-danger"></i> ${formatted}`;
-          scheduleList.appendChild(li);
+          li.innerHTML = `<i class="bi bi-calendar-event text-danger me-2"></i>${
+            new Date(d).toLocaleDateString(undefined, { weekday:'long', year:'numeric', month:'short', day:'numeric' })
+          }`;
+          list.appendChild(li);
         });
       } catch {
         document.getElementById('scheduleList').innerHTML = '<li class="list-group-item text-muted">Unable to load schedule.</li>';

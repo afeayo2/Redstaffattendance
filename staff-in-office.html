@@ -66,7 +66,7 @@
       }
 
       try {
-        const res = await fetch(`http://localhost:3000/api/admin/staff-in-office/${selectedDate}`, {
+        const res = await fetch(`https://nbc-boa-attendance-system.onrender.com/api/admin/staff-in-office/${selectedDate}`, {
           headers: {
             'Authorization': 'Bearer ' + token
           }
