@@ -122,39 +122,24 @@
       window.location.href = '/index';
     }
 
-   function checkIn() {
-  if (!navigator.geolocation) return alert('❌ Geolocation not supported.');
-
-  navigator.geolocation.getCurrentPosition(async pos => {
-    const token = localStorage.getItem('token');
-    if (!token) {
-      alert('Session expired, please login again.');
-      return window.location.href = '/index';
+    function checkIn() {
+      if (!navigator.geolocation) return alert('❌ Geolocation not supported.');
+      navigator.geolocation.getCurrentPosition(async pos => {
+        const { latitude, longitude } = pos.coords;
+        try {
+          const res = await fetch('https://nbc-boa-attendance-system.onrender.com/api/attendance/check-in', {
+            method: 'POST',
+            headers,
+            body: JSON.stringify({ latitude, longitude, deviceId })
+          });
+          const data = await res.json();
+          alert(data.message);
+          loadHistory(); loadSummary();
+        } catch {
+          alert('❌ Check-In failed.');
+        }
+      }, () => alert('❌ Please enable GPS.'));
     }
-
-    const { latitude, longitude } = pos.coords;
-
-    try {
-      const res = await fetch('/api/attendance/check-in', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer ' + token
-        },
-        body: JSON.stringify({ latitude, longitude, deviceId })
-      });
-
-      const data = await res.json();
-      alert(data.message);
-      loadHistory();
-      loadSummary();
-
-    } catch (err) {
-      alert('❌ Check-In failed.');
-    }
-
-  }, () => alert('❌ Please enable GPS.'));
-}
 
     async function checkOut() {
       try {
