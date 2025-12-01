@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <title>Admin – Staff Management</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+  <!-- Bootstrap -->
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+    rel="stylesheet"
+  >
+
+  <style>
+    body {
+      background: #f4f6f9;
+      padding: 40px 0;
+      font-family: Arial, sans-serif;
+    }
+
+    .container {
+      max-width: 1100px;
+      background: white;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+    }
+
+    h2 {
+      text-align: center;
+      font-weight: bold;
+      margin-bottom: 25px;
+    }
+
+    .search-box {
+      margin-bottom: 20px;
+      display: flex;
+      gap: 10px;
+    }
+
+    table {
+      margin-top: 20px;
+    }
+
+    .btn-danger {
+      font-size: 14px;
+    }
+
+    .empty {
+      text-align: center;
+      padding: 30px;
+      color: gray;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="container">
+
+  <h2>👨‍💼 Admin Staff Management</h2>
+
+  <!-- Search Box -->
+  <div class="search-box">
+    <input
+      type="text"
+      id="searchInput"
+      class="form-control"
+      placeholder="Search staff by name..."
+    >
+    <button class="btn btn-primary" onclick="searchStaff()">Search</button>
+    <button class="btn btn-secondary" onclick="loadStaff()">Reload</button>
+  </div>
+
+  <!-- Staff Table -->
+  <div class="table-responsive">
+    <table class="table table-bordered text-center align-middle">
+      <thead class="table-dark">
+      <tr>
+        <th>#</th>
+        <th>Full Name</th>
+        <th>Email</th>
+        <th>Role</th>
+        <th>Device ID</th>
+        <th>Action</th>
+      </tr>
+      </thead>
+      <tbody id="staffTable">
+      </tbody>
+    </table>
+  </div>
+
+  <div id="empty" class="empty d-none">
+    No staff found.
+  </div>
+
+</div>
+
+<script>
+  const API = "https://nbc-boa-attendance-system.onrender.com/api/admin"; // change if live server
+
+  // Your admin token here
+  const TOKEN = localStorage.getItem("adminToken");
+
+  const table = document.getElementById("staffTable");
+  const empty = document.getElementById("empty");
+
+  // ✅ Load All Staff
+  async function loadStaff() {
+    table.innerHTML = "";
+    empty.classList.add("d-none");
+
+    try {
+      const res = await fetch(API + "/admin/staff", {
+        headers: {
+          "Authorization": TOKEN
+        }
+      });
+
+      const data = await res.json();
+
+      if (!data.staff || data.staff.length === 0) {
+        empty.classList.remove("d-none");
+        return;
+      }
+
+      renderStaff(data.staff);
+
+    } catch (err) {
+      console.error("❌ Error fetching staff", err);
+      alert("Failed to load staff");
+    }
+  }
+
+  // ✅ Render Staff
+  function renderStaff(staff) {
+    table.innerHTML = "";
+
+    staff.forEach((s, index) => {
+      const row = document.createElement("tr");
+
+      row.innerHTML = `
+        <td>${index + 1}</td>
+        <td>${s.fullName || "N/A"}</td>
+        <td>${s.email || "N/A"}</td>
+        <td>${s.role || "Staff"}</td>
+        <td>${s.deviceId || "Not Set"}</td>
+        <td>
+          <button class="btn btn-danger btn-sm" onclick="deleteStaff('${s._id}')">
+            Delete
+          </button>
+        </td>
+      `;
+
+      table.appendChild(row);
+    });
+  }
+
+  // ✅ Delete Staff
+  async function deleteStaff(id) {
+    if (!confirm("Are you sure you want to DELETE this staff?")) return;
+
+    try {
+      const res = await fetch(API + "/admin/staff/" + id, {
+        method: "DELETE",
+        headers: {
+          "Authorization": TOKEN
+        }
+      });
+
+      const data = await res.json();
+      alert(data.message);
+
+      loadStaff();
+
+    } catch (err) {
+      console.error("Delete error", err);
+      alert("Failed to delete");
+    }
+  }
+
+  // ✅ Search Staff
+  async function searchStaff() {
+    const name = document.getElementById("searchInput").value.trim();
+
+    if (!name) {
+      loadStaff();
+      return;
+    }
+
+    table.innerHTML = "";
+
+    try {
+      const res = await fetch(API + "/admin/staff/search?name=" + name, {
+        headers: {
+          "Authorization": TOKEN
+        }
+      });
+
+      const data = await res.json();
+
+      if (!data.staff || data.staff.length === 0) {
+        empty.classList.remove("d-none");
+        return;
+      }
+
+      empty.classList.add("d-none");
+      renderStaff(data.staff);
+
+    } catch (err) {
+      console.error("Search error", err);
+      alert("Search failed");
+    }
+  }
+
+  // Auto load on open
+  loadStaff();
+</script>
+
+</body>
+</html>

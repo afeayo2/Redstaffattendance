@@ -54,6 +54,11 @@
         <label class="form-label">Email Address</label>
         <input type="email" class="form-control" id="email" placeholder="john@example.com" required>
       </div>
+    <div class="mb-3">
+        <label class="form-label">Password</label>
+        <input type="password" class="form-control" id="password" placeholder="*********" required>
+      </div>
+    
 
       <div id="message" class="text-center mb-3"></div>
 
@@ -75,6 +80,8 @@
 
     const name = document.getElementById('name').value.trim();
     const email = document.getElementById('email').value.trim();
+     const password = document.getElementById('password').value.trim();
+
 
     const token = localStorage.getItem('token'); // Use your saved token here
 
@@ -89,7 +96,7 @@
           'Content-Type': 'application/json',
           'Authorization': 'Bearer ' + token
         },
-        body: JSON.stringify({ name, email })
+        body: JSON.stringify({ name, email,password })
       });
 
       const data = await res.json();

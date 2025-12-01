@@ -204,7 +204,7 @@ _<!--<!DOCTYPE html>
       return;
     }
 
-    const res = await fetch('http://localhost:3000/api/admin/set-weekly-office-days', {
+    const res = await fetch('https://nbc-boa-attendance-system.onrender.com/api/admin/set-weekly-office-days', {
       method: "POST",
       headers: { "Content-Type": "application/json", "Authorization": "Bearer " + token },
       body: JSON.stringify({ weekStart, days })
