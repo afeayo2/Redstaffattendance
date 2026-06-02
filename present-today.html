@@ -122,11 +122,12 @@
           <th>Office</th>
           <th>Check-In Time</th>
           <th>Location</th>
+          <th>Action</th>
         </tr>
       </thead>
       <tbody id="attendanceTable">
         <tr>
-          <td colspan="5" class="text-center p-4">Loading...</td>
+          <td colspan="6" class="text-center p-4">Loading...</td>
         </tr>
       </tbody>
     </table>
@@ -239,7 +240,7 @@ document.getElementById("absentCount").innerText = data.absentCount || 0;
 
 async function downloadExcel() {
 
-  
+
   try {
 
     let url =
