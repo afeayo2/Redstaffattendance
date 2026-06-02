@@ -237,10 +237,64 @@ document.getElementById("absentCount").innerText = data.absentCount || 0;
   }
 
 
-function downloadExcel() {
-  let table = document.querySelector("table");
-  let workbook = XLSX.utils.table_to_book(table, { sheet: "Attendance" });
-  XLSX.writeFile(workbook, "Attendance.xlsx");
+async function downloadExcel() {
+
+  
+  try {
+
+    let url =
+      `https://nbc-boa-attendance-system.onrender.com/api/admin/present/export?mode=${mode}`;
+
+    if (mode === "month") {
+      url += `&month=${selectedMonth}&year=${selectedYear}`;
+    }
+
+    const res = await fetch(url, {
+      headers: {
+        Authorization: "Bearer " + token
+      }
+    });
+
+    const data = await res.json();
+
+    const rows = data.records.map(r => ({
+      Name: r.name,
+      Email: r.email,
+      Office: r.office,
+      CheckInTime: new Date(
+        r.checkInTime
+      ).toLocaleString(),
+      Latitude: r.latitude,
+      Longitude: r.longitude,
+      Status: r.status
+    }));
+
+    const worksheet =
+      XLSX.utils.json_to_sheet(rows);
+
+    const workbook =
+      XLSX.utils.book_new();
+
+    XLSX.utils.book_append_sheet(
+      workbook,
+      worksheet,
+      "Attendance"
+    );
+
+    XLSX.writeFile(
+      workbook,
+      `Attendance_${mode}.xlsx`
+    );
+
+  } catch (err) {
+
+    console.error(err);
+
+    alert(
+      "Failed to download attendance report"
+    );
+
+  }
 }
 
 
