@@ -338,7 +338,7 @@
       <button class="cam-close" onclick="closeCamera()"><i class="bi bi-x-lg"></i></button>
     </div>
     <div class="cam-viewfinder">
-      <video id="cam-video" autoplay playsinline></video>
+      <video id="cam-video" autoplay playsinline muted webkit-playsinline></video>
       <img  id="cam-preview" src="" alt="Captured selfie"/>
       <!-- Guide overlay -->
       <div class="cam-guide" id="cam-guide">
@@ -346,6 +346,9 @@
         <div class="cam-tip">Face inside oval • <strong>Office background</strong> must be visible</div>
       </div>
       <span class="cam-captured-badge" id="cam-captured-badge">✔ CAPTURED</span>
+    </div>
+    <div style="padding:0 18px 4px;">
+      <span id="cam-size-info" style="font-size:.72rem;color:rgba(255,255,255,.5);"></span>
     </div>
     <div class="cam-footer">
       <button class="btn btn-outline" id="cam-btn-capture" onclick="captureSelfie()">
@@ -386,48 +389,108 @@ function tick() {
 tick(); setInterval(tick, 1000);
 
 // ── CAMERA STATE ──
-let camStream      = null;   // active MediaStream
-let capturedB64    = null;   // current capture in modal
-let currentAction  = null;   // 'checkin' | 'checkout'
-
-// Images confirmed per action
+let camStream      = null;
+let capturedB64    = null;
+let currentAction  = null;
 const confirmedSelfie = { checkin: null, checkout: null };
+
+// ── IMAGE COMPRESSION ──
+// Resizes to max 640px on longest side, outputs JPEG at 60% quality → ~50–80KB
+function compressImage(sourceCanvas, maxPx = 640, quality = 0.60) {
+  return new Promise(resolve => {
+    const sw = sourceCanvas.width, sh = sourceCanvas.height;
+    let tw = sw, th = sh;
+    if (sw > maxPx || sh > maxPx) {
+      if (sw >= sh) { tw = maxPx; th = Math.round(sh * maxPx / sw); }
+      else          { th = maxPx; tw = Math.round(sw * maxPx / sh); }
+    }
+    const out = document.createElement('canvas');
+    out.width = tw; out.height = th;
+    const ctx = out.getContext('2d');
+    // Use two-pass downscale for better quality on iOS WebKit
+    if (sw / tw > 2) {
+      // Step 1: halve
+      const tmp = document.createElement('canvas');
+      tmp.width = Math.floor(sw / 2); tmp.height = Math.floor(sh / 2);
+      tmp.getContext('2d').drawImage(sourceCanvas, 0, 0, tmp.width, tmp.height);
+      ctx.drawImage(tmp, 0, 0, tw, th);
+    } else {
+      ctx.drawImage(sourceCanvas, 0, 0, tw, th);
+    }
+    resolve(out.toDataURL('image/jpeg', quality));
+  });
+}
 
 async function openCamera(action) {
   currentAction = action;
   capturedB64   = null;
 
   // reset modal UI
-  document.getElementById('cam-preview').style.display  = 'none';
-  document.getElementById('cam-preview').src            = '';
-  document.getElementById('cam-video').style.display    = 'block';
-  document.getElementById('cam-guide').style.display    = 'flex';
-  document.getElementById('cam-captured-badge').classList.remove('show');
-  document.getElementById('cam-btn-capture').style.display = '';
-  document.getElementById('cam-btn-retake').style.display  = 'none';
-  document.getElementById('cam-btn-confirm').style.display = 'none';
-  document.getElementById('cam-btn-confirm').disabled       = true;
+  const els = {
+    preview:  document.getElementById('cam-preview'),
+    video:    document.getElementById('cam-video'),
+    guide:    document.getElementById('cam-guide'),
+    badge:    document.getElementById('cam-captured-badge'),
+    capture:  document.getElementById('cam-btn-capture'),
+    retake:   document.getElementById('cam-btn-retake'),
+    confirm:  document.getElementById('cam-btn-confirm'),
+    sizeInfo: document.getElementById('cam-size-info'),
+  };
+  els.preview.style.display  = 'none';
+  els.preview.src            = '';
+  els.video.style.display    = 'block';
+  els.guide.style.display    = 'flex';
+  els.badge.classList.remove('show');
+  els.capture.style.display  = '';
+  els.retake.style.display   = 'none';
+  els.confirm.style.display  = 'none';
+  els.confirm.disabled       = true;
+  if (els.sizeInfo) els.sizeInfo.textContent = '';
 
   const label = action === 'checkin' ? '📸 Check-In Selfie' : '📸 Check-Out Selfie';
   document.getElementById('cam-header-title').innerHTML = `<i class="bi bi-camera-fill"></i> ${label}`;
-
   document.getElementById('cam-modal').classList.add('open');
 
   try {
-    camStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' }, audio: false });
-    document.getElementById('cam-video').srcObject = camStream;
-  } catch {
-    showToast('Camera access denied. Please allow camera permission.', 'error');
+    // iOS Safari requires explicit constraints — avoid 'ideal' which can request full 12MP
+    const constraints = {
+      audio: false,
+      video: {
+        facingMode:  { exact: 'user' },   // front cam
+        width:       { ideal: 640, max: 1280 },
+        height:      { ideal: 480, max:  960 },
+      }
+    };
+    // Fallback if exact facingMode fails (some older iPhones)
+    try {
+      camStream = await navigator.mediaDevices.getUserMedia(constraints);
+    } catch {
+      camStream = await navigator.mediaDevices.getUserMedia({
+        audio: false,
+        video: { facingMode: 'user', width: { max: 1280 }, height: { max: 960 } }
+      });
+    }
+    const videoEl = document.getElementById('cam-video');
+    videoEl.srcObject = camStream;
+    // iOS requires these attributes to autoplay inline
+    videoEl.setAttribute('playsinline', '');
+    videoEl.setAttribute('muted', '');
+    videoEl.muted = true;
+    videoEl.play().catch(() => {});
+  } catch (err) {
+    const msg = err.name === 'NotAllowedError'
+      ? 'Camera permission denied. Go to Settings → Safari → Camera and allow access.'
+      : 'Could not start camera. Please try again.';
+    showToast(msg, 'error');
     document.getElementById('cam-modal').classList.remove('open');
   }
 }
 
 function stopCamera() {
-  if (camStream) {
-    camStream.getTracks().forEach(t => t.stop());
-    camStream = null;
-  }
-  document.getElementById('cam-video').srcObject = null;
+  if (camStream) { camStream.getTracks().forEach(t => t.stop()); camStream = null; }
+  const v = document.getElementById('cam-video');
+  v.srcObject = null;
+  v.load(); // release on iOS
 }
 
 function closeCamera() {
@@ -435,59 +498,83 @@ function closeCamera() {
   document.getElementById('cam-modal').classList.remove('open');
 }
 
-function captureSelfie() {
+async function captureSelfie() {
   const video = document.getElementById('cam-video');
-  if (!video.srcObject) { showToast('Camera not ready.', 'error'); return; }
+  if (!video.srcObject && !video.videoWidth) { showToast('Camera not ready yet. Wait a moment.', 'warn'); return; }
 
-  const canvas = document.createElement('canvas');
-  canvas.width  = video.videoWidth  || 640;
-  canvas.height = video.videoHeight || 480;
-  const ctx = canvas.getContext('2d');
-  ctx.translate(canvas.width, 0);
-  ctx.scale(-1, 1);
-  ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-  capturedB64 = canvas.toDataURL('image/jpeg', 0.85);
+  // Show processing state
+  document.getElementById('cam-btn-capture').disabled = true;
+  document.getElementById('cam-btn-capture').innerHTML = '<i class="bi bi-hourglass-split"></i> Processing…';
 
-  // show preview
-  const preview = document.getElementById('cam-preview');
-  preview.src           = capturedB64;
-  preview.style.display = 'block';
-  video.style.display   = 'none';
-  document.getElementById('cam-guide').style.display = 'none';
-  document.getElementById('cam-captured-badge').classList.add('show');
+  try {
+    // Draw raw frame at native resolution
+    const raw = document.createElement('canvas');
+    raw.width  = video.videoWidth  || 640;
+    raw.height = video.videoHeight || 480;
+    const ctx = raw.getContext('2d');
 
-  document.getElementById('cam-btn-capture').style.display  = 'none';
-  document.getElementById('cam-btn-retake').style.display   = '';
-  document.getElementById('cam-btn-confirm').style.display  = '';
-  document.getElementById('cam-btn-confirm').disabled        = false;
+    // Mirror horizontally (front cam selfie feel)
+    ctx.translate(raw.width, 0);
+    ctx.scale(-1, 1);
+    ctx.drawImage(video, 0, 0, raw.width, raw.height);
+
+    // Compress: max 640px, 60% quality — results in ~40–80KB for all phones
+    capturedB64 = await compressImage(raw, 640, 0.60);
+
+    // Show size to user for transparency
+    const kb = Math.round((capturedB64.length * 0.75) / 1024);
+    const sizeEl = document.getElementById('cam-size-info');
+    if (sizeEl) sizeEl.textContent = `Image size: ~${kb} KB`;
+
+    // Show preview
+    const preview = document.getElementById('cam-preview');
+    preview.src           = capturedB64;
+    preview.style.display = 'block';
+    document.getElementById('cam-video').style.display   = 'none';
+    document.getElementById('cam-guide').style.display   = 'none';
+    document.getElementById('cam-captured-badge').classList.add('show');
+
+    document.getElementById('cam-btn-capture').style.display = 'none';
+    document.getElementById('cam-btn-retake').style.display  = '';
+    document.getElementById('cam-btn-confirm').style.display = '';
+    document.getElementById('cam-btn-confirm').disabled       = false;
+
+  } catch (e) {
+    showToast('Capture failed. Please retake.', 'error');
+    document.getElementById('cam-btn-capture').disabled = false;
+    document.getElementById('cam-btn-capture').innerHTML = '<i class="bi bi-camera"></i> Capture';
+  }
 }
 
 function retakeSelfie() {
   capturedB64 = null;
-  const video   = document.getElementById('cam-video');
-  const preview = document.getElementById('cam-preview');
-
-  preview.style.display = 'none';
-  video.style.display   = 'block';
-  document.getElementById('cam-guide').style.display = 'flex';
+  document.getElementById('cam-preview').style.display = 'none';
+  document.getElementById('cam-video').style.display   = 'block';
+  document.getElementById('cam-guide').style.display   = 'flex';
   document.getElementById('cam-captured-badge').classList.remove('show');
-  document.getElementById('cam-btn-capture').style.display  = '';
-  document.getElementById('cam-btn-retake').style.display   = 'none';
-  document.getElementById('cam-btn-confirm').style.display  = 'none';
+
+  const capBtn = document.getElementById('cam-btn-capture');
+  capBtn.style.display = '';
+  capBtn.disabled      = false;
+  capBtn.innerHTML     = '<i class="bi bi-camera"></i> Capture';
+
+  document.getElementById('cam-btn-retake').style.display  = 'none';
+  document.getElementById('cam-btn-confirm').style.display = 'none';
+
+  const sizeEl = document.getElementById('cam-size-info');
+  if (sizeEl) sizeEl.textContent = '';
 }
 
 function confirmSelfie() {
   if (!capturedB64) return;
   confirmedSelfie[currentAction] = capturedB64;
 
-  // show small thumb in the card
-  const thumb   = document.getElementById(`${currentAction}-thumb`);
+  const thumb    = document.getElementById(`${currentAction}-thumb`);
   const readyTxt = document.getElementById(`${currentAction}-ready-txt`);
   thumb.src = capturedB64;
   thumb.classList.add('show');
   readyTxt.classList.add('show');
 
-  // enable the action button
   document.getElementById(`btn-${currentAction}`).disabled = false;
 
   stopCamera();
