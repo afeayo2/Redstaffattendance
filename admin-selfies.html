@@ -7,336 +7,153 @@
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=Syne:wght@700;800&display=swap" rel="stylesheet"/>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet"/>
   <style>
-    :root {
-      --red:    #e60012;
-      --red-dk: #b8000e;
-      --bg:     #f0f0f2;
-      --card:   #ffffff;
-      --text:   #111;
-      --muted:  #6b6b6b;
-      --border: #e0e0e0;
-      --green:  #00a651;
-      --amber:  #f5a623;
-      --blue:   #0057ff;
-      --shadow: 0 2px 16px rgba(0,0,0,.07);
-    }
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root{--red:#e60012;--red-dk:#b8000e;--bg:#f0f0f2;--card:#fff;
+      --text:#111;--muted:#6b6b6b;--border:#e0e0e0;
+      --green:#00a651;--amber:#f5a623;--blue:#0057ff;--shadow:0 2px 16px rgba(0,0,0,.07);}
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
 
-    body {
-      font-family: 'DM Sans', sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      min-height: 100vh;
-    }
+    .topbar{background:var(--red);padding:0 28px;height:60px;display:flex;
+      align-items:center;justify-content:space-between;
+      position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(230,0,18,.3);}
+    .topbar-brand{font-family:'Syne',sans-serif;font-size:1.05rem;color:#fff;font-weight:800;}
+    .btn-logout{background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.3);
+      color:#fff;padding:6px 14px;border-radius:7px;font-size:.82rem;font-weight:600;cursor:pointer;}
+    .btn-logout:hover{background:rgba(255,255,255,.28);}
 
-    /* TOPBAR */
-    .topbar {
-      background: var(--red);
-      padding: 0 28px;
-      height: 60px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      position: sticky; top: 0; z-index: 100;
-      box-shadow: 0 2px 12px rgba(230,0,18,.3);
-    }
-    .topbar-brand { font-family: 'Syne', sans-serif; font-size: 1.1rem; color: #fff; }
-    .btn-logout {
-      background: rgba(255,255,255,.18);
-      border: 1px solid rgba(255,255,255,.3);
-      color: #fff; padding: 6px 14px;
-      border-radius: 7px; font-size: .82rem; font-weight: 600;
-      cursor: pointer; transition: background .2s;
-    }
-    .btn-logout:hover { background: rgba(255,255,255,.28); }
+    .main{max-width:1280px;margin:0 auto;padding:28px 20px 70px;}
+    .back-link{display:inline-flex;align-items:center;gap:7px;color:var(--red);
+      font-weight:600;font-size:.88rem;text-decoration:none;margin-bottom:20px;}
+    .back-link:hover{text-decoration:underline;}
 
-    /* MAIN */
-    .main { max-width: 1280px; margin: 0 auto; padding: 30px 20px 70px; }
+    /* filter bar */
+    .filter-bar{background:var(--card);border-radius:16px;padding:18px 20px;
+      box-shadow:var(--shadow);margin-bottom:24px;
+      display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end;}
+    .fg{display:flex;flex-direction:column;gap:4px;}
+    .fg label{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);}
+    .fg input,.fg select{padding:9px 13px;border:1.5px solid var(--border);border-radius:9px;
+      font-family:'DM Sans',sans-serif;font-size:.88rem;background:#fafafa;}
+    .fg input:focus,.fg select:focus{outline:none;border-color:var(--red);background:#fff;}
+    .btn-f{padding:10px 20px;border:none;border-radius:9px;
+      font-family:'DM Sans',sans-serif;font-weight:700;font-size:.85rem;
+      cursor:pointer;transition:background .2s;align-self:flex-end;
+      display:inline-flex;align-items:center;gap:6px;}
+    .bf-red{background:var(--red);color:#fff;}     .bf-red:hover{background:var(--red-dk);}
+    .bf-gray{background:#555;color:#fff;}            .bf-gray:hover{background:#333;}
 
-    /* FILTER BAR */
-    .filter-bar {
-      background: var(--card);
-      border-radius: 16px;
-      padding: 20px 22px;
-      box-shadow: var(--shadow);
-      margin-bottom: 28px;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 14px;
-      align-items: flex-end;
-    }
-    .filter-group { display: flex; flex-direction: column; gap: 5px; }
-    .filter-group label { font-size: .75rem; font-weight: 600; text-transform: uppercase; letter-spacing: .5px; color: var(--muted); }
-    .filter-group input,
-    .filter-group select {
-      padding: 9px 13px;
-      border: 1.5px solid var(--border);
-      border-radius: 9px;
-      font-family: 'DM Sans', sans-serif;
-      font-size: .88rem;
-      color: var(--text);
-      background: #fafafa;
-      transition: border-color .2s;
-    }
-    .filter-group input:focus,
-    .filter-group select:focus {
-      outline: none;
-      border-color: var(--red);
-      background: #fff;
-    }
+    /* meta row */
+    .meta-row{display:flex;align-items:center;justify-content:space-between;
+      flex-wrap:wrap;gap:10px;margin-bottom:20px;}
+    .meta-count{font-size:.88rem;color:var(--muted);}
+    .meta-count strong{color:var(--text);}
 
-    .btn-filter {
-      padding: 10px 22px;
-      background: var(--red);
-      color: #fff;
-      border: none;
-      border-radius: 10px;
-      font-family: 'DM Sans', sans-serif;
-      font-weight: 600;
-      font-size: .88rem;
-      cursor: pointer;
-      transition: background .2s;
-      align-self: flex-end;
-    }
-    .btn-filter:hover { background: var(--red-dk); }
+    /* grid */
+    .selfie-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:18px;}
+    .selfie-card{background:var(--card);border-radius:16px;overflow:hidden;
+      box-shadow:var(--shadow);transition:transform .2s,box-shadow .2s;cursor:pointer;}
+    .selfie-card:hover{transform:translateY(-4px);box-shadow:0 8px 28px rgba(0,0,0,.13);}
 
-    /* STAT STRIP */
-    .meta-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin-bottom: 22px;
-    }
-    .meta-count {
-      font-size: .88rem;
-      color: var(--muted);
-    }
-    .meta-count strong { color: var(--text); }
+    .img-wrap{position:relative;width:100%;aspect-ratio:3/4;background:#111;overflow:hidden;}
+    .img-wrap img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .3s;}
+    .selfie-card:hover .img-wrap img{transform:scale(1.04);}
 
-    /* GRID */
-    .selfie-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-      gap: 20px;
-    }
+    /* watermark */
+    .watermark{position:absolute;bottom:0;left:0;right:0;
+      background:linear-gradient(transparent,rgba(0,0,0,.75));
+      padding:30px 12px 10px;pointer-events:none;}
+    .wm-time{font-family:'Syne',sans-serif;font-size:.92rem;font-weight:800;color:#fff;letter-spacing:.5px;}
+    .wm-date{font-size:.7rem;color:rgba(255,255,255,.75);margin-top:2px;}
+    .wm-badge{position:absolute;top:10px;right:10px;font-size:.7rem;font-weight:700;
+      padding:4px 9px;border-radius:20px;letter-spacing:.4px;}
+    .wm-present{background:rgba(0,166,81,.88);color:#fff;}
+    .wm-absent{background:rgba(230,0,18,.88);color:#fff;}
+    .wm-late{background:rgba(245,166,35,.92);color:#111;}
+    .wm-permission{background:rgba(0,87,255,.82);color:#fff;}
+    .wm-type-badge{position:absolute;top:10px;left:10px;font-size:.68rem;font-weight:700;
+      padding:3px 8px;border-radius:20px;background:rgba(0,0,0,.55);color:#fff;}
 
-    .selfie-card {
-      background: var(--card);
-      border-radius: 16px;
-      overflow: hidden;
-      box-shadow: var(--shadow);
-      transition: transform .2s, box-shadow .2s;
-      cursor: pointer;
-    }
-    .selfie-card:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 8px 28px rgba(0,0,0,.13);
-    }
+    /* no image placeholder */
+    .img-placeholder{width:100%;height:100%;display:flex;align-items:center;
+      justify-content:center;flex-direction:column;gap:8px;background:#1a1a1a;color:#555;}
+    .img-placeholder i{font-size:2rem;}
+    .img-placeholder span{font-size:.75rem;}
 
-    /* IMAGE WRAPPER with watermark */
-    .img-wrap {
-      position: relative;
-      width: 100%;
-      aspect-ratio: 3/4;
-      background: #111;
-      overflow: hidden;
-    }
-    .img-wrap img {
-      width: 100%; height: 100%;
-      object-fit: cover;
-      display: block;
-      transition: transform .3s;
-    }
-    .selfie-card:hover .img-wrap img { transform: scale(1.04); }
+    .selfie-info{padding:12px 14px 14px;}
+    .info-name{font-weight:700;font-size:.9rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .info-meta{font-size:.76rem;color:var(--muted);margin-top:2px;}
+    .info-office{font-size:.76rem;color:var(--muted);margin-top:2px;
+      display:flex;align-items:center;gap:4px;}
 
-    /* TIMESTAMP WATERMARK overlay */
-    .watermark {
-      position: absolute;
-      bottom: 0; left: 0; right: 0;
-      background: linear-gradient(transparent, rgba(0,0,0,.72));
-      padding: 30px 12px 10px;
-      pointer-events: none;
-    }
-    .wm-time {
-      font-family: 'Syne', sans-serif;
-      font-size: .95rem;
-      font-weight: 800;
-      color: #fff;
-      letter-spacing: .5px;
-    }
-    .wm-date {
-      font-size: .72rem;
-      color: rgba(255,255,255,.75);
-      margin-top: 2px;
-    }
-    .wm-badge {
-      position: absolute;
-      top: 10px; right: 10px;
-      font-size: .7rem;
-      font-weight: 700;
-      padding: 4px 9px;
-      border-radius: 20px;
-      letter-spacing: .4px;
-    }
-    .wm-present  { background: rgba(0,166,81,.85);  color: #fff; }
-    .wm-absent   { background: rgba(230,0,18,.85);  color: #fff; }
-    .wm-late     { background: rgba(245,166,35,.9); color: #111; }
-    .wm-permission { background: rgba(0,87,255,.8); color: #fff; }
+    /* state box */
+    .state-box{grid-column:1/-1;text-align:center;padding:60px 20px;color:var(--muted);}
+    .state-box i{font-size:2.5rem;margin-bottom:12px;display:block;}
 
-    /* CARD INFO */
-    .selfie-info {
-      padding: 13px 14px 15px;
-    }
-    .info-name {
-      font-weight: 700;
-      font-size: .92rem;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    .info-meta {
-      font-size: .78rem;
-      color: var(--muted);
-      margin-top: 3px;
-    }
-    .info-office {
-      font-size: .78rem;
-      color: var(--muted);
-      margin-top: 2px;
-      display: flex;
-      align-items: center;
-      gap: 4px;
-    }
+    /* pagination */
+    .pg-wrap{display:flex;justify-content:center;gap:8px;margin-top:32px;flex-wrap:wrap;}
+    .pg-btn{width:38px;height:38px;border-radius:9px;border:1.5px solid var(--border);
+      background:var(--card);font-family:'DM Sans',sans-serif;font-size:.88rem;font-weight:600;
+      cursor:pointer;transition:all .18s;display:flex;align-items:center;justify-content:center;}
+    .pg-btn:hover{border-color:var(--red);color:var(--red);}
+    .pg-btn.active{background:var(--red);color:#fff;border-color:var(--red);}
+    .pg-btn:disabled{opacity:.4;cursor:not-allowed;}
 
-    /* EMPTY / LOADING */
-    .state-box {
-      grid-column: 1 / -1;
-      text-align: center;
-      padding: 60px 20px;
-      color: var(--muted);
-    }
-    .state-box i { font-size: 2.5rem; margin-bottom: 12px; display: block; }
+    /* lightbox */
+    .lightbox{display:none;position:fixed;inset:0;background:rgba(0,0,0,.9);
+      z-index:9999;align-items:center;justify-content:center;padding:16px;}
+    .lightbox.open{display:flex;}
+    .lb-inner{background:var(--card);border-radius:20px;overflow:hidden;
+      max-width:520px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.5);
+      animation:lbIn .25s ease;max-height:92vh;overflow-y:auto;}
+    @keyframes lbIn{from{opacity:0;transform:scale(.93)}to{opacity:1;transform:scale(1)}}
+    .lb-img-wrap{position:relative;}
+    .lb-img-wrap img{width:100%;display:block;max-height:400px;object-fit:cover;}
+    .lb-watermark{position:absolute;bottom:0;left:0;right:0;
+      background:linear-gradient(transparent,rgba(0,0,0,.82));padding:40px 18px 14px;}
+    .lb-time{font-family:'Syne',sans-serif;font-size:1.35rem;font-weight:800;color:#fff;}
+    .lb-date{font-size:.8rem;color:rgba(255,255,255,.75);margin-top:3px;}
+    .lb-close{position:absolute;top:12px;right:14px;background:rgba(255,255,255,.15);
+      border:none;color:#fff;width:34px;height:34px;border-radius:50%;font-size:1.1rem;
+      cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:2;}
+    .lb-close:hover{background:rgba(255,255,255,.3);}
+    .lb-info{padding:16px 20px 22px;}
+    .lb-name{font-family:'Syne',sans-serif;font-size:1.05rem;font-weight:800;margin-bottom:4px;}
+    .lb-meta{font-size:.84rem;color:var(--muted);line-height:1.7;}
+    .lb-meta b{color:var(--text);}
 
-    /* PAGINATION */
-    .pagination {
-      display: flex;
-      justify-content: center;
-      gap: 8px;
-      margin-top: 36px;
-      flex-wrap: wrap;
-    }
-    .page-btn {
-      width: 38px; height: 38px;
-      border-radius: 9px;
-      border: 1.5px solid var(--border);
-      background: var(--card);
-      font-family: 'DM Sans', sans-serif;
-      font-size: .88rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all .18s;
-      display: flex; align-items: center; justify-content: center;
-    }
-    .page-btn:hover { border-color: var(--red); color: var(--red); }
-    .page-btn.active { background: var(--red); color: #fff; border-color: var(--red); }
-    .page-btn:disabled { opacity: .4; cursor: not-allowed; }
-
-    /* LIGHTBOX */
-    .lightbox {
-      display: none;
-      position: fixed; inset: 0;
-      background: rgba(0,0,0,.88);
-      z-index: 9999;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
-    }
-    .lightbox.open { display: flex; }
-    .lb-inner {
-      background: var(--card);
-      border-radius: 20px;
-      overflow: hidden;
-      max-width: 540px;
-      width: 100%;
-      box-shadow: 0 20px 60px rgba(0,0,0,.5);
-      animation: lbIn .25s ease;
-    }
-    @keyframes lbIn {
-      from { opacity: 0; transform: scale(.93); }
-      to   { opacity: 1; transform: scale(1); }
-    }
-    .lb-img-wrap { position: relative; }
-    .lb-img-wrap img { width: 100%; display: block; max-height: 420px; object-fit: cover; }
-    .lb-watermark {
-      position: absolute;
-      bottom: 0; left: 0; right: 0;
-      background: linear-gradient(transparent, rgba(0,0,0,.8));
-      padding: 40px 18px 14px;
-    }
-    .lb-time { font-family: 'Syne', sans-serif; font-size: 1.4rem; font-weight: 800; color: #fff; }
-    .lb-date { font-size: .82rem; color: rgba(255,255,255,.75); margin-top: 3px; }
-    .lb-info { padding: 18px 20px 22px; }
-    .lb-name { font-family: 'Syne', sans-serif; font-size: 1.1rem; font-weight: 800; margin-bottom: 4px; }
-    .lb-meta { font-size: .85rem; color: var(--muted); line-height: 1.6; }
-    .lb-close {
-      position: absolute;
-      top: 12px; right: 14px;
-      background: rgba(255,255,255,.15);
-      border: none;
-      color: #fff;
-      width: 34px; height: 34px;
-      border-radius: 50%;
-      font-size: 1.1rem;
-      cursor: pointer;
-      display: flex; align-items: center; justify-content: center;
-      transition: background .2s;
-      z-index: 2;
-    }
-    .lb-close:hover { background: rgba(255,255,255,.3); }
-
-    /* NAV BACK */
-    .back-link {
-      display: inline-flex;
-      align-items: center;
-      gap: 7px;
-      color: var(--red);
-      font-weight: 600;
-      font-size: .88rem;
-      text-decoration: none;
-      margin-bottom: 22px;
-    }
-    .back-link:hover { text-decoration: underline; }
+    /* checkout selfie tab */
+    .selfie-tabs{display:flex;gap:8px;margin-bottom:12px;}
+    .stab{padding:6px 16px;border-radius:20px;border:1.5px solid var(--border);
+      font-size:.8rem;font-weight:700;cursor:pointer;background:#fff;transition:all .18s;}
+    .stab.active{background:var(--red);color:#fff;border-color:var(--red);}
   </style>
 </head>
 <body>
 
 <nav class="topbar">
-  <span class="topbar-brand"><i class="bi bi-shield-fill-check me-2"></i>NBC Red Auditors — Admin</span>
+  <span class="topbar-brand"><i class="bi bi-shield-fill-check" style="margin-right:8px;"></i>NBC Red Auditors — Admin</span>
   <button class="btn-logout" onclick="logout()"><i class="bi bi-box-arrow-right"></i> Logout</button>
 </nav>
 
 <div class="main">
-
   <a class="back-link" href="/admin-dashboard.html">
     <i class="bi bi-arrow-left"></i> Back to Dashboard
   </a>
 
-  <h1 style="font-family:'Syne',sans-serif;font-size:1.5rem;font-weight:800;margin-bottom:6px;">
-    <i class="bi bi-camera-fill" style="color:var(--red);"></i> Check-In Selfie Gallery
+  <h1 style="font-family:'Syne',sans-serif;font-size:1.4rem;font-weight:800;margin-bottom:6px;">
+    <i class="bi bi-camera-fill" style="color:var(--red);"></i> Staff Selfie Gallery
   </h1>
-  <p style="font-size:.88rem;color:var(--muted);margin-bottom:24px;">
-    All staff selfies captured at check-in, shown with timestamp watermarks.
+  <p style="font-size:.86rem;color:var(--muted);margin-bottom:22px;">
+    Check-in and check-out selfies with timestamp watermarks. Filter by date or status.
   </p>
 
   <!-- FILTER BAR -->
   <div class="filter-bar">
-    <div class="filter-group">
+    <div class="fg">
       <label>Filter by Date</label>
       <input type="date" id="filter-date"/>
     </div>
-    <div class="filter-group">
+    <div class="fg">
       <label>Status</label>
       <select id="filter-status">
         <option value="">All Statuses</option>
@@ -346,26 +163,26 @@
         <option value="Permission">Permission</option>
       </select>
     </div>
-    <div class="filter-group">
-      <label>Records per page</label>
+    <div class="fg">
+      <label>Per Page</label>
       <select id="filter-limit">
         <option value="12">12</option>
         <option value="24" selected>24</option>
         <option value="48">48</option>
       </select>
     </div>
-    <button class="btn-filter" onclick="applyFilter()">
+    <button class="btn-f bf-red" onclick="applyFilter()">
       <i class="bi bi-funnel-fill"></i> Apply
     </button>
-    <button class="btn-filter" style="background:#555;" onclick="clearFilter()">
+    <button class="btn-f bf-gray" onclick="clearFilter()">
       <i class="bi bi-x-circle"></i> Clear
     </button>
   </div>
 
-  <!-- META -->
+  <!-- META ROW -->
   <div class="meta-row">
     <p class="meta-count" id="meta-text">Loading…</p>
-    <button class="btn-filter" onclick="loadSelfies(currentPage)" style="padding:8px 16px;font-size:.82rem;">
+    <button class="btn-f bf-gray" onclick="loadSelfies(currentPage)" style="padding:8px 16px;font-size:.82rem;">
       <i class="bi bi-arrow-clockwise"></i> Refresh
     </button>
   </div>
@@ -376,13 +193,12 @@
   </div>
 
   <!-- PAGINATION -->
-  <div class="pagination" id="pagination"></div>
-
+  <div class="pg-wrap" id="pagination"></div>
 </div>
 
 <!-- LIGHTBOX -->
 <div class="lightbox" id="lightbox" onclick="closeLightbox(event)">
-  <div class="lb-inner" id="lb-inner">
+  <div class="lb-inner">
     <div class="lb-img-wrap">
       <button class="lb-close" onclick="closeLightbox()"><i class="bi bi-x-lg"></i></button>
       <img id="lb-img" src="" alt="Selfie"/>
@@ -393,6 +209,11 @@
     </div>
     <div class="lb-info">
       <div class="lb-name" id="lb-name"></div>
+      <!-- show checkout selfie toggle if available -->
+      <div class="selfie-tabs" id="lb-tabs" style="display:none;">
+        <button class="stab active" id="tab-checkin"  onclick="switchSelfie('checkin')">Check-In Photo</button>
+        <button class="stab"        id="tab-checkout" onclick="switchSelfie('checkout')">Check-Out Photo</button>
+      </div>
       <div class="lb-meta" id="lb-meta"></div>
     </div>
   </div>
@@ -401,11 +222,12 @@
 <script>
 const BASE    = 'https://nbc-boa-attendance-system.onrender.com';
 const token   = localStorage.getItem('adminToken') || localStorage.getItem('token');
-const headers = { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token };
+const headers = { 'Content-Type':'application/json', 'Authorization':'Bearer '+token };
 
 let currentPage  = 1;
 let totalPages   = 1;
 let totalRecords = 0;
+let currentRecord = null; // for lightbox selfie switching
 
 // ── Load Selfies ──
 async function loadSelfies(page = 1) {
@@ -417,23 +239,28 @@ async function loadSelfies(page = 1) {
   const status = document.getElementById('filter-status').value;
   const limit  = document.getElementById('filter-limit').value;
 
-  let url = `${BASE}/api/attendance/admin/selfies?page=${page}&limit=${limit}`;
-  if (date)   url += `&date=${date}`;
+  // ✅ Correct endpoint: /api/admin/selfies (not /api/attendance/admin/selfies)
+  let url = `${BASE}/api/admin/selfies?page=${page}&limit=${limit}`;
+  if (date) url += `&date=${date}`;
 
   try {
     const res  = await fetch(url, { headers });
     const data = await res.json();
 
     if (!res.ok) {
-      grid.innerHTML = `<div class="state-box"><i class="bi bi-exclamation-triangle-fill" style="color:var(--red)"></i>${data.message || 'Error loading selfies.'}</div>`;
+      grid.innerHTML = `<div class="state-box">
+        <i class="bi bi-exclamation-triangle-fill" style="color:var(--red)"></i>
+        ${data.message || 'Error loading selfies.'}
+      </div>`;
       return;
     }
 
     totalPages   = data.totalPages   || 1;
     totalRecords = data.totalRecords || 0;
 
-    // Client-side status filter (since backend doesn't filter by status here)
     let records = data.records || [];
+
+    // client-side status filter
     if (status) records = records.filter(r => r.status === status);
 
     document.getElementById('meta-text').innerHTML =
@@ -442,7 +269,7 @@ async function loadSelfies(page = 1) {
     renderGrid(records);
     renderPagination();
 
-  } catch (err) {
+  } catch {
     grid.innerHTML = `<div class="state-box"><i class="bi bi-wifi-off"></i>Network error. Check connection.</div>`;
   }
 }
@@ -458,35 +285,39 @@ function renderGrid(records) {
 
   records.forEach(r => {
     const checkInDate = new Date(r.checkIn);
-    const timeStr = checkInDate.toLocaleTimeString('en-NG', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true });
-    const dateStr = checkInDate.toLocaleDateString('en-NG', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
+    const timeStr = checkInDate.toLocaleTimeString('en-NG',{hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:true});
+    const dateStr = checkInDate.toLocaleDateString('en-NG',{weekday:'short',day:'numeric',month:'short',year:'numeric'});
 
-    const badgeClass = {
-      Present:    'wm-present',
-      Absent:     'wm-absent',
-      Late:       'wm-late',
-      Permission: 'wm-permission'
-    }[r.status] || '';
+    const badgeClass = {Present:'wm-present',Absent:'wm-absent',Late:'wm-late',Permission:'wm-permission'}[r.status]||'';
 
     const card = document.createElement('div');
     card.className = 'selfie-card';
     card.onclick = () => openLightbox(r);
 
-    const imgSrc = r.selfie || 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQwIiBoZWlnaHQ9IjMyMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMjQwIiBoZWlnaHQ9IjMyMCIgZmlsbD0iIzIyMiIvPjx0ZXh0IHg9IjEyMCIgeT0iMTcwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjNTU1IiBmb250LXNpemU9IjE0Ij5ObyBJbWFnZTwvdGV4dD48L3N2Zz4=';
+    // image section — show check-in selfie or placeholder
+    const imgSection = r.selfie
+      ? `<img src="${r.selfie}" alt="Selfie of ${r.staffName}" loading="lazy"/>`
+      : `<div class="img-placeholder"><i class="bi bi-camera-slash"></i><span>No photo</span></div>`;
+
+    // badge for checkout selfie available
+    const coTypeBadge = r.checkOutSelfie
+      ? `<span class="wm-type-badge"><i class="bi bi-arrow-left-right"></i> 2 photos</span>`
+      : '';
 
     card.innerHTML = `
       <div class="img-wrap">
-        <img src="${imgSrc}" alt="Selfie of ${r.staffName}" loading="lazy"/>
+        ${imgSection}
         <div class="watermark">
           <div class="wm-time">${timeStr}</div>
           <div class="wm-date">${dateStr}</div>
         </div>
         ${r.status ? `<span class="wm-badge ${badgeClass}">${r.status}</span>` : ''}
+        ${coTypeBadge}
       </div>
       <div class="selfie-info">
         <div class="info-name">${r.staffName}</div>
         <div class="info-meta">${r.staffEmail}</div>
-        <div class="info-office"><i class="bi bi-building"></i>${r.officeName || 'Unknown'}</div>
+        <div class="info-office"><i class="bi bi-building"></i>${r.officeName||'Unknown'}</div>
       </div>
     `;
     grid.appendChild(card);
@@ -499,27 +330,26 @@ function renderPagination() {
   if (totalPages <= 1) return;
 
   const prev = document.createElement('button');
-  prev.className = 'page-btn';
+  prev.className = 'pg-btn';
   prev.innerHTML = '<i class="bi bi-chevron-left"></i>';
   prev.disabled  = currentPage <= 1;
   prev.onclick   = () => loadSelfies(currentPage - 1);
   wrap.appendChild(prev);
 
-  // Show up to 7 page buttons
   let start = Math.max(1, currentPage - 3);
   let end   = Math.min(totalPages, start + 6);
   start = Math.max(1, end - 6);
 
   for (let i = start; i <= end; i++) {
     const btn = document.createElement('button');
-    btn.className = 'page-btn' + (i === currentPage ? ' active' : '');
+    btn.className = 'pg-btn' + (i === currentPage ? ' active' : '');
     btn.textContent = i;
     btn.onclick = () => loadSelfies(i);
     wrap.appendChild(btn);
   }
 
   const next = document.createElement('button');
-  next.className = 'page-btn';
+  next.className = 'pg-btn';
   next.innerHTML = '<i class="bi bi-chevron-right"></i>';
   next.disabled  = currentPage >= totalPages;
   next.onclick   = () => loadSelfies(currentPage + 1);
@@ -536,49 +366,72 @@ function clearFilter() {
 
 // ── Lightbox ──
 function openLightbox(r) {
+  currentRecord = r;
+
   const checkInDate = new Date(r.checkIn);
-  const timeStr = checkInDate.toLocaleTimeString('en-NG', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true });
-  const dateStr = checkInDate.toLocaleDateString('en-NG', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+  const timeStr = checkInDate.toLocaleTimeString('en-NG',{hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:true});
+  const dateStr = checkInDate.toLocaleDateString('en-NG',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
 
   const checkOutStr = r.checkOut
-    ? new Date(r.checkOut).toLocaleTimeString('en-NG', { hour: '2-digit', minute: '2-digit', hour12: true })
+    ? new Date(r.checkOut).toLocaleTimeString('en-NG',{hour:'2-digit',minute:'2-digit',hour12:true})
     : 'Not checked out';
 
-  document.getElementById('lb-img').src   = r.selfie || '';
-  document.getElementById('lb-time').textContent = timeStr;
-  document.getElementById('lb-date').textContent = dateStr;
-  document.getElementById('lb-name').textContent = r.staffName;
+  document.getElementById('lb-img').src              = r.selfie || '';
+  document.getElementById('lb-time').textContent     = timeStr;
+  document.getElementById('lb-date').textContent     = dateStr;
+  document.getElementById('lb-name').textContent     = r.staffName;
+
+  // show checkout tab only if checkout selfie exists
+  const tabs = document.getElementById('lb-tabs');
+  tabs.style.display = r.checkOutSelfie ? 'flex' : 'none';
+  document.getElementById('tab-checkin').classList.add('active');
+  document.getElementById('tab-checkout').classList.remove('active');
+
   document.getElementById('lb-meta').innerHTML = `
     <b>Email:</b> ${r.staffEmail}<br/>
-    <b>Office:</b> ${r.officeName || 'Unknown'}<br/>
+    <b>Office:</b> ${r.officeName || '—'}<br/>
     <b>Location:</b> ${r.locationStatus || '—'}<br/>
     <b>Check-In:</b> ${timeStr}<br/>
     <b>Check-Out:</b> ${checkOutStr}<br/>
-    <b>Status:</b> ${r.status || '—'}
+    <b>Status:</b> <strong style="color:${
+      r.status==='Present'?'var(--green)':r.status==='Absent'?'var(--red)':
+      r.status==='Late'?'var(--amber)':'var(--blue)'
+    }">${r.status || '—'}</strong>
   `;
 
   document.getElementById('lightbox').classList.add('open');
   document.body.style.overflow = 'hidden';
 }
 
-function closeLightbox(e) {
-  if (e && e.target !== document.getElementById('lightbox') && !e.target.closest('.lb-close')) return;
-  document.getElementById('lightbox').classList.remove('open');
-  document.body.style.overflow = '';
+function switchSelfie(type) {
+  if (!currentRecord) return;
+  const img = document.getElementById('lb-img');
+  if (type === 'checkin') {
+    img.src = currentRecord.selfie || '';
+    document.getElementById('tab-checkin').classList.add('active');
+    document.getElementById('tab-checkout').classList.remove('active');
+  } else {
+    img.src = currentRecord.checkOutSelfie || '';
+    document.getElementById('tab-checkout').classList.add('active');
+    document.getElementById('tab-checkin').classList.remove('active');
+  }
 }
 
-// Keyboard ESC
+function closeLightbox(e) {
+  if (e && e.target !== document.getElementById('lightbox') &&
+      !e.target.closest('.lb-close')) return;
+  document.getElementById('lightbox').classList.remove('open');
+  document.body.style.overflow = '';
+  currentRecord = null;
+}
+
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape') closeLightbox({ target: document.getElementById('lightbox') });
 });
 
-function logout() {
-  localStorage.clear();
-  window.location.href = '/admin-login';
-}
+function logout() { localStorage.clear(); window.location.href = '/admin-login'; }
 
-// ── Init ──
-// Pre-set today's date in the filter
+// init — default to today
 document.getElementById('filter-date').value = new Date().toISOString().slice(0, 10);
 loadSelfies(1);
 </script>

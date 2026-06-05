@@ -5,160 +5,162 @@
   <title>Staff Attendance | Admin</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Syne:wght@700;800&display=swap" rel="stylesheet"/>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet"/>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <style>
     :root {
-      --red: #e60012; --red-dk: #b8000e;
-      --green: #00a651; --amber: #f5a623; --blue: #0057ff;
+      --red:#e60012; --red-dk:#b8000e;
+      --green:#00a651; --amber:#f5a623; --blue:#0057ff;
+      --bg:#f5f5f7; --card:#fff; --text:#111; --muted:#6b6b6b; --border:#e0e0e0;
     }
-    body { font-family:'DM Sans',sans-serif; background:#f5f5f7; padding:0; margin:0; }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);}
 
-    .topbar {
-      background: var(--red); padding: 0 28px; height: 58px;
-      display:flex; align-items:center; justify-content:space-between;
-      position:sticky; top:0; z-index:100;
-      box-shadow:0 2px 12px rgba(230,0,18,.3);
-    }
-    .topbar-brand { font-family:'Syne',sans-serif; color:#fff; font-size:1.1rem; font-weight:800; }
-    .btn-logout {
-      background:rgba(255,255,255,.18); border:1px solid rgba(255,255,255,.3);
-      color:#fff; padding:6px 14px; border-radius:7px;
-      font-size:.82rem; font-weight:600; cursor:pointer;
-    }
-    .btn-logout:hover { background:rgba(255,255,255,.28); }
+    .topbar{background:var(--red);padding:0 24px;height:58px;display:flex;align-items:center;
+      justify-content:space-between;position:sticky;top:0;z-index:100;
+      box-shadow:0 2px 12px rgba(230,0,18,.3);}
+    .topbar-brand{font-family:'Syne',sans-serif;color:#fff;font-size:1.05rem;font-weight:800;}
+    .btn-logout{background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.3);
+      color:#fff;padding:6px 14px;border-radius:7px;font-size:.82rem;font-weight:600;cursor:pointer;}
+    .btn-logout:hover{background:rgba(255,255,255,.28);}
 
-    .main { max-width:1280px; margin:0 auto; padding:28px 20px 60px; }
-    .page-title { font-family:'Syne',sans-serif; font-size:1.5rem; font-weight:800; margin-bottom:22px; }
-    .page-title i { color:var(--red); }
+    .main{max-width:1280px;margin:0 auto;padding:26px 18px 60px;}
+    .page-title{font-family:'Syne',sans-serif;font-size:1.4rem;font-weight:800;margin-bottom:20px;}
+    .page-title i{color:var(--red);}
+
+    /* tabs */
+    .mode-tabs{display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap;}
+    .mode-tab{padding:8px 20px;border-radius:20px;border:2px solid var(--border);
+      background:var(--card);font-weight:600;font-size:.85rem;cursor:pointer;transition:all .18s;}
+    .mode-tab.active{background:var(--red);color:#fff;border-color:var(--red);}
+    .mode-tab:hover:not(.active){border-color:var(--red);color:var(--red);}
 
     /* filter bar */
-    .filter-bar {
-      background:#fff; border-radius:16px; padding:18px 22px;
-      box-shadow:0 2px 14px rgba(0,0,0,.06); margin-bottom:22px;
-      display:flex; flex-wrap:wrap; gap:12px; align-items:flex-end;
-    }
-    .fg { display:flex; flex-direction:column; gap:4px; }
-    .fg label { font-size:.72rem; font-weight:700; text-transform:uppercase; letter-spacing:.5px; color:#888; }
-    .fg select, .fg input {
-      padding:8px 12px; border:1.5px solid #e0e0e0; border-radius:9px;
-      font-family:'DM Sans',sans-serif; font-size:.88rem; background:#fafafa;
-    }
-    .fg select:focus,.fg input:focus { outline:none; border-color:var(--red); background:#fff; }
+    .filter-bar{background:var(--card);border-radius:14px;padding:16px 20px;
+      box-shadow:0 2px 12px rgba(0,0,0,.06);margin-bottom:18px;
+      display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end;}
+    .fg{display:flex;flex-direction:column;gap:4px;}
+    .fg label{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#888;}
+    .fg select,.fg input{padding:8px 12px;border:1.5px solid var(--border);border-radius:9px;
+      font-family:'DM Sans',sans-serif;font-size:.88rem;background:#fafafa;}
+    .fg select:focus,.fg input:focus{outline:none;border-color:var(--red);background:#fff;}
 
-    .btn-filter {
-      padding:9px 20px; border:none; border-radius:9px;
-      font-family:'DM Sans',sans-serif; font-weight:700; font-size:.85rem;
-      cursor:pointer; transition:all .18s; align-self:flex-end;
-    }
-    .bf-red   { background:var(--red); color:#fff; }
-    .bf-red:hover { background:var(--red-dk); }
-    .bf-gray  { background:#555; color:#fff; }
-    .bf-gray:hover { background:#333; }
-    .bf-green { background:var(--green); color:#fff; }
-    .bf-green:hover { background:#008843; }
+    .btn{padding:9px 18px;border:none;border-radius:9px;font-family:'DM Sans',sans-serif;
+      font-weight:700;font-size:.85rem;cursor:pointer;transition:all .18s;align-self:flex-end;
+      display:inline-flex;align-items:center;gap:6px;}
+    .btn-red{background:var(--red);color:#fff;}         .btn-red:hover{background:var(--red-dk);}
+    .btn-green{background:var(--green);color:#fff;}      .btn-green:hover{background:#008843;}
+    .btn-gray{background:#555;color:#fff;}               .btn-gray:hover{background:#333;}
+    .btn-blue{background:var(--blue);color:#fff;}        .btn-blue:hover{background:#004acc;}
+    .btn:disabled{opacity:.5;cursor:not-allowed;}
 
-    /* mode tabs */
-    .mode-tabs { display:flex; gap:8px; margin-bottom:18px; flex-wrap:wrap; }
-    .mode-tab {
-      padding:8px 20px; border-radius:20px; border:2px solid #e0e0e0;
-      background:#fff; font-weight:600; font-size:.85rem; cursor:pointer;
-      transition:all .18s;
-    }
-    .mode-tab.active { background:var(--red); color:#fff; border-color:var(--red); }
-    .mode-tab:hover:not(.active) { border-color:var(--red); color:var(--red); }
+    /* toolbar row */
+    .toolbar{display:flex;justify-content:flex-end;gap:10px;margin-bottom:16px;flex-wrap:wrap;}
 
-    /* counters */
-    .count-row { display:flex; gap:14px; margin-bottom:18px; flex-wrap:wrap; }
-    .count-badge {
-      display:flex; align-items:center; gap:8px;
-      padding:10px 18px; border-radius:12px;
-      font-weight:700; font-size:.92rem;
-    }
-    .cb-green { background:#e6f7ee; color:var(--green); }
-    .cb-red   { background:#fdecea; color:var(--red); }
-    .cb-amber { background:#fef7e6; color:var(--amber); }
+    /* count badges */
+    .count-row{display:flex;gap:12px;margin-bottom:18px;flex-wrap:wrap;}
+    .count-badge{display:flex;align-items:center;gap:7px;padding:10px 16px;
+      border-radius:12px;font-weight:700;font-size:.88rem;}
+    .cb-green{background:#e6f7ee;color:var(--green);}
+    .cb-red{background:#fdecea;color:var(--red);}
+    .cb-amber{background:#fef7e6;color:var(--amber);}
+    .cb-blue{background:#e6eeff;color:var(--blue);}
 
     /* table */
-    .table-card { background:#fff; border-radius:16px; padding:0; overflow:hidden; box-shadow:0 2px 14px rgba(0,0,0,.06); }
-    table { width:100%; border-collapse:collapse; font-size:.87rem; }
-    thead { background:var(--red); }
-    thead th { color:#fff; padding:13px 14px; font-weight:700; font-size:.8rem; text-transform:uppercase; letter-spacing:.4px; white-space:nowrap; }
-    tbody tr { border-bottom:1px solid #f0f0f0; transition:background .15s; }
-    tbody tr:hover { background:#fafafa; }
-    tbody td { padding:12px 14px; }
-    .empty-cell { text-align:center; padding:36px; color:#999; }
+    .table-card{background:var(--card);border-radius:16px;overflow:hidden;
+      box-shadow:0 2px 14px rgba(0,0,0,.06);}
+    .table-scroll{overflow-x:auto;}
+    table{width:100%;border-collapse:collapse;font-size:.86rem;}
+    thead{background:var(--red);}
+    thead th{color:#fff;padding:12px 14px;font-weight:700;font-size:.78rem;
+      text-transform:uppercase;letter-spacing:.4px;white-space:nowrap;}
+    tbody tr{border-bottom:1px solid #f0f0f0;transition:background .15s;}
+    tbody tr:hover{background:#fafafa;}
+    tbody td{padding:11px 14px;vertical-align:middle;}
+    .empty-cell{text-align:center;padding:40px;color:#999;font-size:.9rem;}
+
+    /* selfie thumb */
+    .selfie-thumb{width:42px;height:42px;border-radius:8px;object-fit:cover;
+      border:2px solid var(--border);cursor:pointer;transition:transform .2s;}
+    .selfie-thumb:hover{transform:scale(1.1);}
+    .no-selfie{color:#ccc;font-size:.75rem;}
 
     /* status pill */
-    .sp { display:inline-block; padding:3px 11px; border-radius:20px; font-size:.75rem; font-weight:700; }
-    .sp-present    { background:#e6f7ee; color:var(--green); }
-    .sp-absent     { background:#fdecea; color:var(--red); }
-    .sp-late       { background:#fef7e6; color:var(--amber); }
-    .sp-permission { background:#e6eeff; color:var(--blue); }
+    .sp{display:inline-block;padding:3px 10px;border-radius:20px;font-size:.74rem;font-weight:700;}
+    .sp-present{background:#e6f7ee;color:var(--green);}
+    .sp-absent{background:#fdecea;color:var(--red);}
+    .sp-late{background:#fef7e6;color:var(--amber);}
+    .sp-permission{background:#e6eeff;color:var(--blue);}
 
     /* pagination */
-    .pg-wrap { display:flex; justify-content:center; gap:8px; padding:20px; flex-wrap:wrap; }
-    .pg-btn {
-      width:36px; height:36px; border-radius:8px;
-      border:1.5px solid #e0e0e0; background:#fff;
-      font-weight:600; font-size:.85rem; cursor:pointer; transition:all .18s;
-      display:flex; align-items:center; justify-content:center;
-    }
-    .pg-btn:hover { border-color:var(--red); color:var(--red); }
-    .pg-btn.active { background:var(--red); color:#fff; border-color:var(--red); }
-    .pg-btn:disabled { opacity:.4; cursor:not-allowed; }
+    .pg-wrap{display:flex;justify-content:center;gap:8px;padding:18px;flex-wrap:wrap;}
+    .pg-btn{width:36px;height:36px;border-radius:8px;border:1.5px solid var(--border);
+      background:var(--card);font-weight:600;font-size:.85rem;cursor:pointer;
+      display:flex;align-items:center;justify-content:center;transition:all .18s;}
+    .pg-btn:hover{border-color:var(--red);color:var(--red);}
+    .pg-btn.active{background:var(--red);color:#fff;border-color:var(--red);}
+    .pg-btn:disabled{opacity:.4;cursor:not-allowed;}
 
     /* override modal */
-    .ov-modal {
-      display:none; position:fixed; inset:0;
-      background:rgba(0,0,0,.6); z-index:9000;
-      align-items:center; justify-content:center; padding:20px;
-    }
-    .ov-modal.open { display:flex; }
-    .ov-box {
-      background:#fff; border-radius:18px; padding:28px 26px;
-      width:100%; max-width:420px;
-      box-shadow:0 20px 60px rgba(0,0,0,.3);
-      animation:ovIn .22s ease;
-    }
-    @keyframes ovIn { from{opacity:0;transform:scale(.94)} to{opacity:1;transform:scale(1)} }
-    .ov-title { font-family:'Syne',sans-serif; font-size:1.1rem; font-weight:800; margin-bottom:18px; }
-    .ov-field { margin-bottom:14px; }
-    .ov-field label { display:block; font-size:.78rem; font-weight:700; text-transform:uppercase; letter-spacing:.4px; color:#888; margin-bottom:5px; }
-    .ov-field select, .ov-field textarea {
-      width:100%; padding:10px 13px; border:1.5px solid #e0e0e0; border-radius:10px;
-      font-family:'DM Sans',sans-serif; font-size:.9rem;
-    }
-    .ov-field select:focus,.ov-field textarea:focus { outline:none; border-color:var(--red); }
-    .ov-footer { display:flex; gap:10px; margin-top:18px; }
-    .ov-btn {
-      flex:1; padding:11px; border:none; border-radius:10px;
-      font-family:'DM Sans',sans-serif; font-weight:700; font-size:.9rem; cursor:pointer;
-    }
-    .ov-submit { background:var(--green); color:#fff; }
-    .ov-submit:hover { background:#008843; }
-    .ov-cancel { background:#eee; color:#333; }
-    .ov-cancel:hover { background:#ddd; }
+    .modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);
+      z-index:9000;align-items:center;justify-content:center;padding:20px;}
+    .modal-bg.open{display:flex;}
+    .modal-box{background:var(--card);border-radius:18px;padding:28px 24px;
+      width:100%;max-width:420px;box-shadow:0 20px 60px rgba(0,0,0,.3);
+      animation:mIn .22s ease;}
+    @keyframes mIn{from{opacity:0;transform:scale(.94)}to{opacity:1;transform:scale(1)}}
+    .modal-title{font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:800;margin-bottom:18px;}
+    .mf{margin-bottom:14px;}
+    .mf label{display:block;font-size:.76rem;font-weight:700;text-transform:uppercase;
+      letter-spacing:.4px;color:#888;margin-bottom:5px;}
+    .mf select,.mf textarea{width:100%;padding:10px 12px;border:1.5px solid var(--border);
+      border-radius:10px;font-family:'DM Sans',sans-serif;font-size:.9rem;}
+    .mf select:focus,.mf textarea:focus{outline:none;border-color:var(--red);}
+    .modal-footer{display:flex;gap:10px;margin-top:18px;}
+    .mb{flex:1;padding:11px;border:none;border-radius:10px;
+      font-family:'DM Sans',sans-serif;font-weight:700;font-size:.9rem;cursor:pointer;}
+    .mb-submit{background:var(--green);color:#fff;}  .mb-submit:hover{background:#008843;}
+    .mb-cancel{background:#eee;color:#333;}            .mb-cancel:hover{background:#ddd;}
+    .mb-submit:disabled{background:#aaa;cursor:not-allowed;}
+
+    /* selfie lightbox */
+    .lb{display:none;position:fixed;inset:0;background:rgba(0,0,0,.9);
+      z-index:9999;align-items:center;justify-content:center;padding:20px;}
+    .lb.open{display:flex;}
+    .lb img{max-width:90vw;max-height:88vh;border-radius:14px;
+      box-shadow:0 20px 60px rgba(0,0,0,.6);}
+    .lb-close{position:absolute;top:18px;right:22px;background:rgba(255,255,255,.15);
+      border:none;color:#fff;width:38px;height:38px;border-radius:50%;
+      font-size:1.2rem;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+    .lb-close:hover{background:rgba(255,255,255,.3);}
+
+    /* download overlay */
+    .dl-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);
+      z-index:8000;align-items:center;justify-content:center;}
+    .dl-overlay.show{display:flex;}
+    .dl-box{background:#fff;border-radius:16px;padding:32px 28px;text-align:center;
+      box-shadow:0 20px 60px rgba(0,0,0,.3);min-width:240px;}
+    .dl-spinner{width:42px;height:42px;border:4px solid #f0f0f0;
+      border-top-color:var(--red);border-radius:50%;
+      animation:spin .7s linear infinite;margin:0 auto 16px;}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    .dl-text{font-weight:600;color:var(--text);}
 
     /* toast */
-    .toast-ct { position:fixed; bottom:24px; right:22px; z-index:9999; display:flex; flex-direction:column; gap:8px; }
-    .toast {
-      background:#111; color:#fff; padding:13px 18px; border-radius:11px;
-      font-size:.87rem; font-weight:500; max-width:300px;
-      display:flex; align-items:center; gap:9px;
-      animation:tUp .28s ease;
-    }
-    .t-success { background:var(--green); }
-    .t-error   { background:var(--red); }
-    .t-warn    { background:var(--amber); color:#111; }
-    @keyframes tUp { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
+    .toast-ct{position:fixed;bottom:24px;right:22px;z-index:9999;
+      display:flex;flex-direction:column;gap:8px;}
+    .toast{background:#111;color:#fff;padding:13px 18px;border-radius:11px;
+      font-size:.87rem;font-weight:500;max-width:300px;
+      display:flex;align-items:center;gap:9px;animation:tUp .28s ease;}
+    .t-success{background:var(--green);} .t-error{background:var(--red);}
+    .t-warn{background:var(--amber);color:#111;}
+    @keyframes tUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
   </style>
 </head>
 <body>
 
 <nav class="topbar">
-  <span class="topbar-brand"><i class="bi bi-shield-fill-check me-2"></i>NBC Admin — Attendance</span>
+  <span class="topbar-brand"><i class="bi bi-shield-fill-check" style="margin-right:8px;"></i>NBC Admin — Attendance</span>
   <button class="btn-logout" onclick="logout()"><i class="bi bi-box-arrow-right"></i> Logout</button>
 </nav>
 
@@ -172,7 +174,7 @@
     <button class="mode-tab"        id="tab-month" onclick="setMode('month')">Month Filter</button>
   </div>
 
-  <!-- FILTER BAR (month mode only) -->
+  <!-- MONTH FILTER (shown only in month mode) -->
   <div class="filter-bar" id="month-filter-bar" style="display:none;">
     <div class="fg">
       <label>Month</label>
@@ -193,54 +195,58 @@
         <option value="2026">2026</option>
       </select>
     </div>
-    <button class="btn-filter bf-red" onclick="applyMonthFilter()"><i class="bi bi-funnel-fill"></i> Apply</button>
-    <button class="btn-filter bf-green" onclick="downloadExcel()"><i class="bi bi-file-earmark-excel"></i> Download Report</button>
+    <button class="btn btn-red" onclick="applyMonthFilter()">
+      <i class="bi bi-funnel-fill"></i> Apply Filter
+    </button>
   </div>
 
-  <!-- Top toolbar for day/week -->
-  <div style="display:flex;justify-content:flex-end;margin-bottom:14px;" id="top-download">
-    <button class="btn-filter bf-green" onclick="downloadExcel()"><i class="bi bi-file-earmark-excel"></i> Download Report</button>
+  <!-- TOOLBAR -->
+  <div class="toolbar">
+    <button class="btn btn-green" onclick="downloadExcel()" id="btn-download">
+      <i class="bi bi-file-earmark-excel"></i> Download Full Report
+    </button>
   </div>
 
   <!-- COUNT BADGES -->
   <div class="count-row">
-    <div class="count-badge cb-green"><i class="bi bi-check-circle-fill"></i> Present: <span id="presentCount">0</span></div>
-    <div class="count-badge cb-red">  <i class="bi bi-x-circle-fill"></i>    Absent:  <span id="absentCount">0</span></div>
-    <div class="count-badge cb-amber"><i class="bi bi-clock-fill"></i>        Late:    <span id="lateCount">0</span></div>
+    <div class="count-badge cb-green"><i class="bi bi-check-circle-fill"></i> Present: <span id="presentCount">—</span></div>
+    <div class="count-badge cb-red">  <i class="bi bi-x-circle-fill"></i>    Absent:  <span id="absentCount">—</span></div>
+    <div class="count-badge cb-amber"><i class="bi bi-clock-fill"></i>        Late:    <span id="lateCount">—</span></div>
+    <div class="count-badge cb-blue"> <i class="bi bi-patch-check-fill"></i>  Permission: <span id="permissionCount">—</span></div>
   </div>
 
   <!-- TABLE -->
   <div class="table-card">
-    <div style="overflow-x:auto;">
+    <div class="table-scroll">
       <table id="mainTable">
         <thead>
           <tr>
             <th>#</th>
+            <th>Selfie</th>
             <th>Name</th>
             <th>Email</th>
             <th>Office</th>
-            <th>Check-In Time</th>
-            <th>Check-Out Time</th>
+            <th>Check-In</th>
+            <th>Check-Out</th>
             <th>Status</th>
             <th>Action</th>
           </tr>
         </thead>
         <tbody id="attendanceBody">
-          <tr><td class="empty-cell" colspan="8">Loading…</td></tr>
+          <tr><td class="empty-cell" colspan="9">Loading…</td></tr>
         </tbody>
       </table>
     </div>
     <div class="pg-wrap" id="pagination"></div>
   </div>
-
 </div>
 
 <!-- OVERRIDE MODAL -->
-<div class="ov-modal" id="overrideModal">
-  <div class="ov-box">
-    <div class="ov-title"><i class="bi bi-pencil-square" style="color:var(--amber);"></i> Override Attendance</div>
-    <input type="hidden" id="overrideAttendanceId"/>
-    <div class="ov-field">
+<div class="modal-bg" id="overrideModal">
+  <div class="modal-box">
+    <div class="modal-title"><i class="bi bi-pencil-square" style="color:var(--amber);margin-right:8px;"></i>Override Attendance</div>
+    <input type="hidden" id="overrideId"/>
+    <div class="mf">
       <label>Set Status To</label>
       <select id="overrideStatus">
         <option value="Present">✅ Mark as Present</option>
@@ -248,105 +254,148 @@
         <option value="Absent">❌ Mark as Absent</option>
       </select>
     </div>
-    <div class="ov-field">
-      <label>Reason for Override</label>
-      <textarea id="overrideReason" rows="3" placeholder="Briefly explain the reason…"></textarea>
+    <div class="mf">
+      <label>Reason (required)</label>
+      <textarea id="overrideReason" rows="3" placeholder="Briefly explain the reason for this override…"></textarea>
     </div>
-    <div class="ov-footer">
-      <button class="ov-btn ov-cancel" onclick="closeOverride()">Cancel</button>
-      <button class="ov-btn ov-submit" onclick="submitOverride()">
+    <div class="modal-footer">
+      <button class="mb mb-cancel" onclick="closeOverride()">Cancel</button>
+      <button class="mb mb-submit" id="btn-override-submit" onclick="submitOverride()">
         <i class="bi bi-check2-all"></i> Apply Override
       </button>
     </div>
   </div>
 </div>
 
+<!-- SELFIE LIGHTBOX -->
+<div class="lb" id="selfie-lb" onclick="closeSelfie(event)">
+  <button class="lb-close" onclick="closeSelfie()"><i class="bi bi-x-lg"></i></button>
+  <img id="lb-selfie-img" src="" alt="Staff Selfie"/>
+</div>
+
+<!-- DOWNLOAD OVERLAY -->
+<div class="dl-overlay" id="dl-overlay">
+  <div class="dl-box">
+    <div class="dl-spinner"></div>
+    <div class="dl-text">Fetching all records…</div>
+  </div>
+</div>
+
 <div class="toast-ct" id="toastCt"></div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
 const BASE  = 'https://nbc-boa-attendance-system.onrender.com';
 const token = localStorage.getItem('token');
 const hdrs  = { 'Content-Type':'application/json', 'Authorization':'Bearer '+token };
 
-let mode   = 'day';
-let page   = 1;
-const limit = 15;
-let totalPages  = 1;
+let mode          = 'day';
+let page          = 1;
+const LIMIT       = 15;
+let totalPages    = 1;
 let selectedMonth = new Date().getMonth() + 1;
 let selectedYear  = new Date().getFullYear();
 
-// pre-set month selector to current
+// pre-fill month selector
 document.getElementById('monthSelect').value = selectedMonth;
 document.getElementById('yearSelect').value  = selectedYear;
 
-// ── MODE ──
+// ── MODE TABS ──
 function setMode(m) {
   mode = m; page = 1;
-  ['day','week','month'].forEach(t => document.getElementById(`tab-${t}`).classList.toggle('active', t===m));
-  document.getElementById('month-filter-bar').style.display = m==='month' ? 'flex' : 'none';
-  document.getElementById('top-download').style.display     = m!=='month' ? 'flex' : 'none';
+  ['day','week','month'].forEach(t =>
+    document.getElementById(`tab-${t}`).classList.toggle('active', t === m)
+  );
+  document.getElementById('month-filter-bar').style.display = m === 'month' ? 'flex' : 'none';
   loadRecords();
 }
 
 function applyMonthFilter() {
-  selectedMonth = document.getElementById('monthSelect').value;
-  selectedYear  = document.getElementById('yearSelect').value;
+  selectedMonth = parseInt(document.getElementById('monthSelect').value);
+  selectedYear  = parseInt(document.getElementById('yearSelect').value);
   page = 1;
   loadRecords();
 }
 
-// ── LOAD ──
+// ── BUILD URL ──
+function buildUrl(forExport = false) {
+  const base = forExport
+    ? `${BASE}/api/admin/present/export`
+    : `${BASE}/api/admin/present`;
+
+  let url = `${base}?mode=${mode}`;
+  if (!forExport) url += `&page=${page}&limit=${LIMIT}`;
+  if (mode === 'month') url += `&month=${selectedMonth}&year=${selectedYear}`;
+  return url;
+}
+
+// ── LOAD RECORDS ──
 async function loadRecords() {
   document.getElementById('attendanceBody').innerHTML =
-    '<tr><td class="empty-cell" colspan="8">Loading…</td></tr>';
-
-  let url = `${BASE}/api/admin/present?mode=${mode}&page=${page}&limit=${limit}`;
-  if (mode === 'month') url += `&month=${selectedMonth}&year=${selectedYear}`;
+    `<tr><td class="empty-cell" colspan="9">Loading…</td></tr>`;
 
   try {
-    const res  = await fetch(url, { headers: hdrs });
-    if (!res.ok) throw new Error('bad response');
+    const res  = await fetch(buildUrl(), { headers: hdrs });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
 
     renderTable(data.records || []);
     renderPagination(data.page || 1, data.totalPages || 1);
 
-    // counts
-    document.getElementById('presentCount').textContent = data.presentCount ?? 0;
-    document.getElementById('absentCount').textContent  = data.absentCount  ?? 0;
-    document.getElementById('lateCount').textContent    = data.lateCount    ?? 0;
+    document.getElementById('presentCount').textContent    = data.presentCount    ?? 0;
+    document.getElementById('absentCount').textContent     = data.absentCount     ?? 0;
+    document.getElementById('lateCount').textContent       = data.lateCount       ?? 0;
+    document.getElementById('permissionCount').textContent = data.permissionCount ?? 0;
 
-  } catch (e) {
+  } catch (err) {
+    console.error(err);
     document.getElementById('attendanceBody').innerHTML =
-      '<tr><td class="empty-cell" colspan="8" style="color:#e60012;">Error loading records. Please try again.</td></tr>';
+      `<tr><td class="empty-cell" colspan="9" style="color:var(--red);">
+        Error loading records. Check your connection or token.
+      </td></tr>`;
   }
 }
 
+// ── RENDER TABLE ──
 function renderTable(records) {
   const tbody = document.getElementById('attendanceBody');
   if (!records.length) {
-    tbody.innerHTML = '<tr><td class="empty-cell" colspan="8">No records found for this period.</td></tr>';
+    tbody.innerHTML = `<tr><td class="empty-cell" colspan="9">No records found for this period.</td></tr>`;
     return;
   }
 
   tbody.innerHTML = records.map((r, i) => {
-    const checkIn  = r.checkInTime ? new Date(r.checkInTime).toLocaleString('en-NG',{day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit',hour12:true}) : '—';
-    const checkOut = r.checkOutTime ? new Date(r.checkOutTime).toLocaleString('en-NG',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit',hour12:true}) : '<span style="color:#bbb;">Not yet</span>';
+    const num      = ((page - 1) * LIMIT) + i + 1;
+    const checkIn  = r.checkInTime
+      ? new Date(r.checkInTime).toLocaleString('en-NG',{day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit',hour12:true})
+      : '—';
+    const checkOut = r.checkOutTime
+      ? new Date(r.checkOutTime).toLocaleString('en-NG',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit',hour12:true})
+      : '<span style="color:#bbb;font-size:.8rem;">Not yet</span>';
 
-    const sc = {Present:'sp-present',Absent:'sp-absent',Late:'sp-late',Permission:'sp-permission'}[r.status]||'';
+    const scMap = {Present:'sp-present',Absent:'sp-absent',Late:'sp-late',Permission:'sp-permission'};
+    const sc    = scMap[r.status] || '';
+
+    // selfie column — show thumb if available
+    const selfieCol = r.selfie
+      ? `<img class="selfie-thumb" src="${r.selfie}" alt="selfie"
+             onclick="openSelfie('${r.selfie}')" title="Click to enlarge"/>`
+      : `<span class="no-selfie">—</span>`;
+
+    // ✅ Use r._id directly — it's now included in the response
+    const rid = r._id || '';
 
     return `<tr>
-      <td style="color:#aaa;">${((page-1)*limit)+i+1}</td>
-      <td><strong>${r.name||'—'}</strong></td>
-      <td style="color:#666;">${r.email||'—'}</td>
-      <td>${r.office||'—'}</td>
-      <td>${checkIn}</td>
-      <td>${checkOut}</td>
-      <td><span class="sp ${sc}">${r.status||'—'}</span></td>
+      <td style="color:#aaa;font-size:.8rem;">${num}</td>
+      <td>${selfieCol}</td>
+      <td><strong>${r.name || '—'}</strong></td>
+      <td style="color:#666;font-size:.83rem;">${r.email || '—'}</td>
+      <td style="font-size:.83rem;">${r.office || '—'}</td>
+      <td style="font-size:.83rem;">${checkIn}</td>
+      <td style="font-size:.83rem;">${checkOut}</td>
+      <td><span class="sp ${sc}">${r.status || '—'}</span></td>
       <td>
-        <button class="btn-filter bf-gray" style="padding:5px 12px;font-size:.78rem;border-radius:7px;"
-          onclick="openOverride('${r._id}','${r.status||''}')">
+        <button class="btn btn-gray" style="padding:5px 12px;font-size:.78rem;"
+          onclick="openOverride('${rid}','${r.status || ''}')">
           <i class="bi bi-pencil"></i> Override
         </button>
       </td>
@@ -358,80 +407,173 @@ function renderTable(records) {
 function renderPagination(cur, total) {
   totalPages = total;
   const wrap = document.getElementById('pagination');
-  if (total <= 1) { wrap.innerHTML=''; return; }
+  if (total <= 1) { wrap.innerHTML = ''; return; }
 
   let html = `<button class="pg-btn" onclick="changePage(${cur-1})" ${cur<=1?'disabled':''}><i class="bi bi-chevron-left"></i></button>`;
-
-  let start = Math.max(1, cur-3), end = Math.min(total, start+6);
-  start = Math.max(1, end-6);
-  for (let p=start; p<=end; p++) {
+  let start = Math.max(1, cur - 3), end = Math.min(total, start + 6);
+  start = Math.max(1, end - 6);
+  for (let p = start; p <= end; p++) {
     html += `<button class="pg-btn ${p===cur?'active':''}" onclick="changePage(${p})">${p}</button>`;
   }
   html += `<button class="pg-btn" onclick="changePage(${cur+1})" ${cur>=total?'disabled':''}><i class="bi bi-chevron-right"></i></button>`;
   wrap.innerHTML = html;
 }
 
-function changePage(p) { if (p<1||p>totalPages) return; page=p; loadRecords(); }
+function changePage(p) {
+  if (p < 1 || p > totalPages) return;
+  page = p;
+  loadRecords();
+}
 
 // ── OVERRIDE ──
 function openOverride(id, currentStatus) {
-  document.getElementById('overrideAttendanceId').value = id;
-  document.getElementById('overrideStatus').value = currentStatus || 'Present';
-  document.getElementById('overrideReason').value = '';
+  if (!id || id === 'undefined') {
+    showToast('Cannot override: record ID is missing.', 'error');
+    return;
+  }
+  document.getElementById('overrideId').value       = id;
+  document.getElementById('overrideStatus').value   = currentStatus || 'Present';
+  document.getElementById('overrideReason').value   = '';
   document.getElementById('overrideModal').classList.add('open');
 }
+
 function closeOverride() {
   document.getElementById('overrideModal').classList.remove('open');
 }
 
 async function submitOverride() {
-  const attendanceId = document.getElementById('overrideAttendanceId').value;
-  const status       = document.getElementById('overrideStatus').value;
-  const reason       = document.getElementById('overrideReason').value.trim();
+  const id     = document.getElementById('overrideId').value;
+  const status = document.getElementById('overrideStatus').value;
+  const reason = document.getElementById('overrideReason').value.trim();
 
-  if (!reason) { showToast('Please enter a reason for the override.', 'warn'); return; }
+  if (!reason) { showToast('Please enter a reason.', 'warn'); return; }
+  if (!id || id === 'undefined') { showToast('Invalid record ID.', 'error'); return; }
+
+  const btn = document.getElementById('btn-override-submit');
+  btn.disabled = true;
+  btn.textContent = 'Saving…';
 
   try {
-    const res  = await fetch(`${BASE}/api/admin/override/${attendanceId}`, {
-      method:'PUT', headers: hdrs,
+    const res  = await fetch(`${BASE}/api/admin/override/${id}`, {
+      method: 'PUT', headers: hdrs,
       body: JSON.stringify({ status, reason })
     });
     const data = await res.json();
 
     if (res.ok) {
-      showToast(data.message || '✅ Override applied successfully.', 'success');
+      showToast(data.message || '✅ Override applied.', 'success');
       closeOverride();
       loadRecords();
     } else {
       showToast(data.message || '❌ Override failed.', 'error');
     }
   } catch {
-    showToast('Network error. Please try again.', 'error');
+    showToast('Network error. Try again.', 'error');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<i class="bi bi-check2-all"></i> Apply Override';
   }
 }
 
-// ── DOWNLOAD EXCEL ──
-function downloadExcel() {
-  const table = document.getElementById('mainTable');
-  const wb    = XLSX.utils.table_to_book(table, { sheet: 'Attendance' });
-  const label = mode==='month' ? `${document.getElementById('monthSelect').options[selectedMonth-1].text}_${selectedYear}` : mode;
-  XLSX.writeFile(wb, `NBC_Attendance_${label}.xlsx`);
+// Close modal on outside click
+document.getElementById('overrideModal').addEventListener('click', e => {
+  if (e.target === document.getElementById('overrideModal')) closeOverride();
+});
+
+// ── SELFIE LIGHTBOX ──
+function openSelfie(src) {
+  document.getElementById('lb-selfie-img').src = src;
+  document.getElementById('selfie-lb').classList.add('open');
+}
+function closeSelfie(e) {
+  if (e && e.target !== document.getElementById('selfie-lb') &&
+      !e.target.closest('.lb-close')) return;
+  document.getElementById('selfie-lb').classList.remove('open');
+}
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeSelfie({ target: document.getElementById('selfie-lb') });
+});
+
+// ── DOWNLOAD FULL REPORT (fetches ALL pages via export endpoint) ──
+async function downloadExcel() {
+  const btn = document.getElementById('btn-download');
+  btn.disabled = true;
+  document.getElementById('dl-overlay').classList.add('show');
+
+  try {
+    const res  = await fetch(buildUrl(true), { headers: hdrs });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    const rows = data.records || [];
+
+    if (!rows.length) {
+      showToast('No records to export for this period.', 'warn');
+      return;
+    }
+
+    // Build worksheet data manually so we control columns and formatting
+    const wsData = [
+      ['#', 'Name', 'Email', 'Office', 'Check-In Time', 'Check-Out Time', 'Status', 'Location']
+    ];
+
+    rows.forEach((r, i) => {
+      const checkIn  = r.checkInTime
+        ? new Date(r.checkInTime).toLocaleString('en-NG',{day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit',hour12:true})
+        : '—';
+      const checkOut = r.checkOutTime
+        ? new Date(r.checkOutTime).toLocaleString('en-NG',{day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit',hour12:true})
+        : 'Not yet';
+
+      wsData.push([
+        i + 1,
+        r.name   || '—',
+        r.email  || '—',
+        r.office || '—',
+        checkIn,
+        checkOut,
+        r.status         || '—',
+        r.locationStatus || '—',
+      ]);
+    });
+
+    const ws = XLSX.utils.aoa_to_sheet(wsData);
+
+    // Column widths
+    ws['!cols'] = [
+      {wch:5},{wch:22},{wch:28},{wch:22},{wch:22},{wch:22},{wch:12},{wch:16}
+    ];
+
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Attendance');
+
+    const monthName = mode === 'month'
+      ? document.getElementById('monthSelect').options[selectedMonth - 1].text + '_' + selectedYear
+      : mode;
+    const filename = `NBC_Attendance_${monthName}_${rows.length}records.xlsx`;
+    XLSX.writeFile(wb, filename);
+
+    showToast(`✅ Downloaded ${rows.length} records.`, 'success');
+
+  } catch (err) {
+    console.error(err);
+    showToast('Download failed. Try again.', 'error');
+  } finally {
+    btn.disabled = false;
+    document.getElementById('dl-overlay').classList.remove('show');
+  }
 }
 
 // ── TOAST ──
-function showToast(msg, type='') {
-  const c=document.getElementById('toastCt'), d=document.createElement('div');
-  d.className=`toast t-${type}`;
-  d.innerHTML=`<span>${type==='success'?'✅':type==='error'?'❌':'⚠️'}</span>${msg}`;
-  c.appendChild(d); setTimeout(()=>d.remove(),4500);
+function showToast(msg, type = '') {
+  const c = document.getElementById('toastCt');
+  const d = document.createElement('div');
+  d.className = `toast t-${type}`;
+  d.innerHTML = `<span>${type==='success'?'✅':type==='error'?'❌':'⚠️'}</span> ${msg}`;
+  c.appendChild(d);
+  setTimeout(() => d.remove(), 4500);
 }
 
-function logout() { localStorage.clear(); window.location.href='/admin-login'; }
-
-// Close override modal when clicking outside
-document.getElementById('overrideModal').addEventListener('click', function(e) {
-  if (e.target === this) closeOverride();
-});
+function logout() { localStorage.clear(); window.location.href = '/admin-login'; }
 
 window.onload = loadRecords;
 </script>
